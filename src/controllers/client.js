@@ -12,6 +12,7 @@ async function addClient(req, res) {
     photo,
     description
   } = req.body;
+
   const client = new Client({
     firstName,
     lastName,
