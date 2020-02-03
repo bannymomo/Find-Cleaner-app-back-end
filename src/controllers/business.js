@@ -1,12 +1,28 @@
 const Business = require("../models/business");
 async function addBusiness(req, res) {
+  const {
+    businessName,
+    address,
+    email,
+    postcode,
+    telephoneNumber,
+    ABNNumber,
+    memberSince,
+    lastOnline,
+    photo,
+    description
+  } = req.body;
   const business = new Business({
-    businessName: "cleaner",
-    address: "brisbane",
-    email: "banny@126.com",
-    postcode: 4120,
-    telephoneNumber: 0420123425,
-    ABNNumber: 1845378
+    businessName,
+    address,
+    email,
+    postcode,
+    telephoneNumber,
+    ABNNumber,
+    memberSince,
+    lastOnline,
+    photo,
+    description
   });
   await business.save();
   return res.json(business);
