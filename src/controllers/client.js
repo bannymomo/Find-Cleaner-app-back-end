@@ -1,12 +1,28 @@
 const Client = require("../models/client");
 async function addClient(req, res) {
+  const {
+    firstName,
+    lastName,
+    gender,
+    age,
+    email,
+    postcode,
+    memberSince,
+    lastOnline,
+    photo,
+    description
+  } = req.body;
   const client = new Client({
-    firstName: "banny",
-    lastName: "momo",
-    gender: "female",
-    age: 30,
-    email: "aqua@126.com",
-    postcode: 4000
+    firstName,
+    lastName,
+    gender,
+    age,
+    email,
+    postcode,
+    memberSince,
+    lastOnline,
+    photo,
+    description
   });
   await client.save();
   return res.json(client);
