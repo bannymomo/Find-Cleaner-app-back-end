@@ -15,7 +15,7 @@ async function addClient(req, res) {
 function getClient(req, res) {}
 
 async function getAllClients(req, res) {
-  const clients = await Client.find();
+  const clients = await Client.find().exec();
   return res.json(clients);
 }
 function updateClient(req, res) {}

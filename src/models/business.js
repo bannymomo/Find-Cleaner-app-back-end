@@ -20,6 +20,10 @@ const schema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  ABNNumber: {
+    type: Number,
+    required: true
+  },
   memberSince: {
     type: Date,
     default: Date.now
