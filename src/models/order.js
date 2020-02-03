@@ -15,6 +15,11 @@ const schema = new mongoose.Schema({
     required: true
   },
 
+  budget: {
+    type: Number,
+    required: true
+  },
+
   price: {
     type: Number,
     required: true
