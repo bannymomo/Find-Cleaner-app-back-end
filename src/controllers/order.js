@@ -1,10 +1,28 @@
 const Order = require("../models/order");
 async function addOrder(req, res) {
+  const {
+    postBy,
+    postDate,
+    location,
+    budget,
+    price,
+    dueDate,
+    description,
+    orderConfirmed,
+    projectCompleted,
+    orderEvaluation
+  } = req.body;
   const order = new Order({
-    postBy: "banny",
-    location: "brisbane",
-    budget: 300,
-    price: 400
+    postBy,
+    postDate,
+    location,
+    budget,
+    price,
+    dueDate,
+    description,
+    orderConfirmed,
+    projectCompleted,
+    orderEvaluation
   });
   await order.save();
   return res.json(order);
