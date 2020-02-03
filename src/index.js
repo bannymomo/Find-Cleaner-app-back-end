@@ -1,10 +1,22 @@
+require("dotenv").config();
 const express = require("express");
+const helmet = require("helmet");
+const morgan = require("morgan");
+const cors = require("cors");
+const routes = require("./routes");
+
 const app = express();
+const PORT = process.env.PORT || 3000;
+const morganLog =
+  process.env.NODE_ENV === "production" ? morgan("common") : morgan("dev");
 
-app.get("/", (req, res) => {
-  res.send("Hello World");
-});
+app.use(helmet());
+app.use(morganLog);
+app.use(cors());
+app.use(express.json());
 
-app.listen(3000, () => {
-  console.log("Server listening on port 3000");
+app.use("/api", routes);
+
+app.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
 });
