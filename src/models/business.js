@@ -20,10 +20,6 @@ const schema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  price: {
-    type: Number,
-    required: true
-  },
   memberSince: {
     type: Date,
     default: Date.now
