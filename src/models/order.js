@@ -7,7 +7,7 @@ const schema = new mongoose.Schema({
 
   postDate: {
     type: Date,
-    required: true
+    default: Date.now
   },
 
   location: {
