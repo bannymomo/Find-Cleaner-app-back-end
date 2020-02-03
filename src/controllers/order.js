@@ -27,7 +27,16 @@ async function addOrder(req, res) {
   await order.save();
   return res.json(order);
 }
-function getOrder(req, res) {}
+
+async function getOrder(req, res) {
+  const { orderId } = req.params;
+  const order = await Order.findById(orderId).exec();
+  if (!order) {
+    return res.status(404).json("order not found");
+  }
+  return res.json(order);
+}
+
 async function getAllOrders(req, res) {
   const orders = await Order.find().exec();
   return res.json(orders);

@@ -29,7 +29,14 @@ async function addClient(req, res) {
   return res.json(client);
 }
 
-function getClient(req, res) {}
+async function getClient(req, res) {
+  const { clientId } = req.params;
+  const client = await Client.findById(clientId).exec();
+  if (!client) {
+    return res.status(404).json("client not found");
+  }
+  return res.json(client);
+}
 
 async function getAllClients(req, res) {
   const clients = await Client.find().exec();
