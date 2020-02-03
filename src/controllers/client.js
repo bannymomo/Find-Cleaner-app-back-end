@@ -13,7 +13,11 @@ async function addClient(req, res) {
 }
 
 function getClient(req, res) {}
-function getAllClients(req, res) {}
+
+async function getAllClients(req, res) {
+  const clients = await Client.find();
+  return res.json(clients);
+}
 function updateClient(req, res) {}
 function deleteClient(req, res) {}
 
