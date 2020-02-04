@@ -90,7 +90,7 @@ async function updateClient(req, res) {
 }
 async function deleteClient(req, res) {
   const { clientId } = req.params;
-  const client = await Client.findByIdAndDelete(clientId);
+  const client = await Client.findByIdAndDelete(clientId).exec();
   if (!client) {
     return res.status(404).json("client not found");
   }

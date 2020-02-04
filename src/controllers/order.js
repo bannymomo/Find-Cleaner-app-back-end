@@ -89,7 +89,7 @@ async function updateOrder(req, res) {
 }
 async function deleteOrder(req, res) {
   const { orderId } = req.params;
-  const order = await Order.findByIdAndDelete(orderId);
+  const order = await Order.findByIdAndDelete(orderId).exec();
   if (!order) {
     return res.status(404).json("order not found");
   }

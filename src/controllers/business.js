@@ -90,7 +90,7 @@ async function updateBusiness(req, res) {
 }
 async function deleteBusiness(req, res) {
   const { businessId } = req.params;
-  const business = await Business.findByIdAndDelete(businessId);
+  const business = await Business.findByIdAndDelete(businessId).exec();
   if (!business) {
     return res.status(404).json("business not found");
   }
