@@ -55,7 +55,8 @@ async function updateOrder(req, res) {
     projectCompleted,
     orderEvaluation
   } = req.body;
-  const obj = {
+
+  const fields = {
     postBy,
     postDate,
     location,
@@ -67,25 +68,15 @@ async function updateOrder(req, res) {
     projectCompleted,
     orderEvaluation
   };
+  const order = await Order.findById(orderId);
 
-  const result = [];
-  for (const name in obj) {
-    const value = obj[name];
-    if (value !== undefined) {
-      result.push({ [name]: value });
+  Object.keys(fields).forEach(key => {
+    if (fields[key] !== undefined) {
+      order[key] = fields[key];
     }
-  }
-
-  let newOrder;
-  for (let i = 0; i < result.length; i++) {
-    newOrder = await Order.findByIdAndUpdate(orderId, result[i], {
-      new: true
-    }).exec();
-    if (!newOrder) {
-      return res.status(404).json("order not found");
-    }
-  }
-  return res.json(newOrder);
+  });
+  await order.save();
+  return res.json(order);
 }
 async function deleteOrder(req, res) {
   const { orderId } = req.params;

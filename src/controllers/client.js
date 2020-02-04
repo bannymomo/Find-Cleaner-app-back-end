@@ -56,7 +56,8 @@ async function updateClient(req, res) {
     photo,
     description
   } = req.body;
-  const obj = {
+
+  const fields = {
     firstName,
     lastName,
     gender,
@@ -68,26 +69,17 @@ async function updateClient(req, res) {
     photo,
     description
   };
+  const client = await Client.findById(clientId);
 
-  const result = [];
-  for (const name in obj) {
-    const value = obj[name];
-    if (value !== undefined) {
-      result.push({ [name]: value });
+  Object.keys(fields).forEach(key => {
+    if (fields[key] !== undefined) {
+      client[key] = fields[key];
     }
-  }
-
-  let newClient;
-  for (let i = 0; i < result.length; i++) {
-    newClient = await Client.findByIdAndUpdate(clientId, result[i], {
-      new: true
-    }).exec();
-    if (!newClient) {
-      return res.status(404).json("client not found");
-    }
-  }
-  return res.json(newClient);
+  });
+  await client.save();
+  return res.json(client);
 }
+
 async function deleteClient(req, res) {
   const { clientId } = req.params;
   const client = await Client.findByIdAndDelete(clientId).exec();

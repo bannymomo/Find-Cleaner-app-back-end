@@ -56,7 +56,8 @@ async function updateBusiness(req, res) {
     photo,
     description
   } = req.body;
-  const obj = {
+
+  const fields = {
     businessName,
     address,
     email,
@@ -68,26 +69,18 @@ async function updateBusiness(req, res) {
     photo,
     description
   };
+  const business = await Business.findById(businessId);
 
-  const result = [];
-  for (const name in obj) {
-    const value = obj[name];
-    if (value !== undefined) {
-      result.push({ [name]: value });
+  Object.keys(fields).forEach(key => {
+    if (fields[key] !== undefined) {
+      business[key] = fields[key];
     }
-  }
+  });
 
-  let newBusiness;
-  for (let i = 0; i < result.length; i++) {
-    newBusiness = await Business.findByIdAndUpdate(businessId, result[i], {
-      new: true
-    }).exec();
-    if (!newBusiness) {
-      return res.status(404).json("business not found");
-    }
-  }
-  return res.json(newBusiness);
+  await business.save();
+  return res.json(business);
 }
+
 async function deleteBusiness(req, res) {
   const { businessId } = req.params;
   const business = await Business.findByIdAndDelete(businessId).exec();

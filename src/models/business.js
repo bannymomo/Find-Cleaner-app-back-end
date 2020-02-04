@@ -1,3 +1,4 @@
+const Joi = require("@hapi/joi");
 const mongoose = require("mongoose");
 const schema = new mongoose.Schema({
   businessName: {
@@ -10,7 +11,14 @@ const schema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: true
+    required: true,
+    validate: {
+      validator: email =>
+        !Joi.string()
+          .email()
+          .validate(email).error,
+      msg: "Invalide email format"
+    }
   },
   postcode: {
     type: Number,
