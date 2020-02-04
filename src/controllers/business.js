@@ -88,7 +88,14 @@ async function updateBusiness(req, res) {
   }
   return res.json(newBusiness);
 }
-function deleteBusiness(req, res) {}
+async function deleteBusiness(req, res) {
+  const { businessId } = req.params;
+  const business = await Business.findByIdAndDelete(businessId);
+  if (!business) {
+    return res.status(404).json("business not found");
+  }
+  return res.status(200).json(business);
+}
 
 module.exports = {
   addBusiness,
