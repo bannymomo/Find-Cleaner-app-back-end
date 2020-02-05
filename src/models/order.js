@@ -52,7 +52,8 @@ const schema = new mongoose.Schema({
     type: String,
     default: "",
     trim: true
-  }
+  },
+  client: { type: mongoose.Schema.Types.ObjectId, ref: "Client" }
 });
 
 const model = mongoose.model("Order", schema);

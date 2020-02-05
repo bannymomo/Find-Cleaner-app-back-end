@@ -30,7 +30,12 @@ async function addOrder(req, res) {
 
 async function getOrder(req, res) {
   const { orderId } = req.params;
-  const order = await Order.findById(orderId).exec();
+  const order = await Order.findById(orderId)
+    .populate(
+      "client",
+      "firstName lastName gender age email postcode memberSince lastOnline photo description"
+    )
+    .exec();
   if (!order) {
     return res.status(404).json("order not found");
   }

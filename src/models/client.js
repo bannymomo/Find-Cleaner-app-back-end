@@ -58,7 +58,8 @@ const schema = new mongoose.Schema(
       type: String,
       default: "Find Cleaner app client",
       trim: true
-    }
+    },
+    orders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }]
   },
   { toJSON: { virtuals: true }, id: false }
 );
