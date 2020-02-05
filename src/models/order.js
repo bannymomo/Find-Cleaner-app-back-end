@@ -2,7 +2,8 @@ const mongoose = require("mongoose");
 const schema = new mongoose.Schema({
   postBy: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
 
   postDate: {
@@ -12,7 +13,8 @@ const schema = new mongoose.Schema({
 
   location: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
 
   budget: {
@@ -32,7 +34,8 @@ const schema = new mongoose.Schema({
 
   description: {
     type: String,
-    default: "Details"
+    default: "Details",
+    trim: true
   },
 
   orderConfirmed: {
@@ -47,7 +50,8 @@ const schema = new mongoose.Schema({
 
   orderEvaluation: {
     type: String,
-    default: ""
+    default: "",
+    trim: true
   }
 });
 

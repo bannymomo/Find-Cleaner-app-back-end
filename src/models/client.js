@@ -4,15 +4,20 @@ const schema = new mongoose.Schema(
   {
     firstName: {
       type: String,
-      required: true
+      required: true,
+      trim: true,
+      minlength: 2
     },
     lastName: {
       type: String,
-      required: true
+      required: true,
+      trim: true,
+      minlength: 2
     },
     gender: {
       type: String,
-      required: true
+      required: true,
+      trim: true
     },
     age: {
       type: Number,
@@ -23,6 +28,7 @@ const schema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
+      trim: true,
       validate: {
         validator: email =>
           !Joi.string()
@@ -45,11 +51,13 @@ const schema = new mongoose.Schema(
     },
     photo: {
       type: String, //url
-      default: "http://www.pngmart.com/files/10/User-Account-PNG-Clipart.png"
+      default: "http://www.pngmart.com/files/10/User-Account-PNG-Clipart.png",
+      trim: true
     },
     description: {
       type: String,
-      default: "Find Cleaner app client"
+      default: "Find Cleaner app client",
+      trim: true
     }
   },
   { toJSON: { virtuals: true }, id: false }
