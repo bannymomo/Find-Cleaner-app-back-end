@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const responseFormatter = require("../utils/responseFormatter");
+const { generateToken } = require("../utils/jwt");
 
 async function addUser(req, res) {
   const { username, password, role } = req.body;
@@ -13,7 +14,12 @@ async function addUser(req, res) {
     role
   });
   await user.save();
-  return responseFormatter(res, 200, null, user);
+  const token = generateToken({ id: user._id, role: user.role });
+  return responseFormatter(res, 200, null, {
+    userName: user.username,
+    userRole: user.role,
+    token
+  });
 }
 
 async function getUser(req, res) {
