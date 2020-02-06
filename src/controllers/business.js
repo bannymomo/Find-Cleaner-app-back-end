@@ -1,5 +1,6 @@
 const Business = require("../models/business");
 const Order = require("../models/order");
+const responseFormatter = require("../utils/responseFormatter");
 async function addBusiness(req, res) {
   const {
     businessName,
@@ -26,7 +27,7 @@ async function addBusiness(req, res) {
     description
   });
   await business.save();
-  return res.json(business);
+  responseFormatter(res, 200, null, business);
 }
 
 async function getBusiness(req, res) {
@@ -35,14 +36,14 @@ async function getBusiness(req, res) {
     .populate("orders")
     .exec();
   if (!business) {
-    return res.status(404).json("business not found");
+    responseFormatter(res, 404, "business not found", null);
   }
-  return res.json(business);
+  responseFormatter(res, 200, null, business);
 }
 
 async function getAllBusinesses(req, res) {
   const businesses = await Business.find().exec();
-  return res.json(businesses);
+  responseFormatter(res, 200, null, businesses);
 }
 
 async function updateBusiness(req, res) {
@@ -72,7 +73,10 @@ async function updateBusiness(req, res) {
     photo,
     description
   };
-  const business = await Business.findById(businessId);
+  const business = await Business.findById(businessId).exec();
+  if (!business) {
+    responseFormatter(res, 404, "business not found", null);
+  }
 
   Object.keys(fields).forEach(key => {
     if (fields[key] !== undefined) {
@@ -81,7 +85,7 @@ async function updateBusiness(req, res) {
   });
 
   await business.save();
-  return res.json(business);
+  responseFormatter(res, 200, null, business);
 }
 
 async function deleteBusiness(req, res) {
@@ -89,9 +93,9 @@ async function deleteBusiness(req, res) {
   const { businessId } = req.params;
   const business = await Business.findByIdAndDelete(businessId).exec();
   if (!business) {
-    return res.status(404).json("business not found");
+    responseFormatter(res, 404, "business not found", null);
   }
-  return res.status(200).json(business);
+  responseFormatter(res, 200, null, business);
 }
 
 //商家接单
@@ -100,14 +104,14 @@ async function addOrderToBusiness(req, res) {
   const business = await Business.findById(businessId);
   const order = await Order.findById(orderId);
   if (!business || !order) {
-    return res.status(404).json("business or order not found");
+    responseFormatter(res, 404, "business or order not found", null);
   }
   business.orders.addToSet(order._id);
   order.business = business._id;
   order.businessHandle = true;
   await order.save();
   await business.save();
-  return res.json(business);
+  responseFormatter(res, 200, null, business);
 }
 
 //商家退单 businessWithdraw设为true

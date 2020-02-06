@@ -78,7 +78,7 @@ const schema = new mongoose.Schema({
     ref: "Client"
   },
 
-  business: { type: mongoose.Schema.Types.ObjectId, ref: "Client" }
+  business: { type: mongoose.Schema.Types.ObjectId, ref: "Business" }
 });
 
 const model = mongoose.model("Order", schema);
