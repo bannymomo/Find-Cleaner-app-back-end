@@ -53,7 +53,8 @@ const schema = new mongoose.Schema({
     type: String,
     default: "Find Cleaner app business",
     trim: true
-  }
+  },
+  orders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }]
 });
 
 const model = mongoose.model("Business", schema);

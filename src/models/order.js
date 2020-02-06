@@ -1,5 +1,25 @@
 const mongoose = require("mongoose");
 const schema = new mongoose.Schema({
+  visible: {
+    type: Boolean,
+    required: true,
+    default: true
+  },
+  clientWithdraw: {
+    type: Boolean,
+    required: true,
+    default: false
+  },
+  businessHandle: {
+    type: Boolean,
+    required: true,
+    default: false
+  },
+  businessWithdraw: {
+    type: Boolean,
+    required: true,
+    default: false
+  },
   postBy: {
     type: String,
     required: true,
@@ -53,7 +73,12 @@ const schema = new mongoose.Schema({
     default: "",
     trim: true
   },
-  client: { type: mongoose.Schema.Types.ObjectId, ref: "Client" }
+  client: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Client"
+  },
+
+  business: { type: mongoose.Schema.Types.ObjectId, ref: "Client" }
 });
 
 const model = mongoose.model("Order", schema);

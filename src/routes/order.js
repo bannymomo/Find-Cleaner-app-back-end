@@ -10,8 +10,8 @@ const {
 
 router.get("/", getAllOrders);
 router.get("/:orderId", getOrder);
-router.post("/", addOrder);
 router.put("/:orderId", updateOrder);
-router.delete("/:orderId", deleteOrder);
+router.post("/clients/:clientId", addOrder);
+router.delete("/:orderId/clients/:clientId", deleteOrder);
 
 module.exports = router;

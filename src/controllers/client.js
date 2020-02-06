@@ -34,10 +34,7 @@ async function addClient(req, res) {
 async function getClient(req, res) {
   const { clientId } = req.params;
   const client = await Client.findById(clientId)
-    .populate(
-      "orders",
-      "postBy postDate location budget price dueDate description orderConfirmed projectCompleted orderEvaluation"
-    )
+    .populate("orders")
     .exec();
   if (!client) {
     return res.status(404).json("client not found");
@@ -87,46 +84,31 @@ async function updateClient(req, res) {
   return res.json(client);
 }
 
+//只用于测试，使用时不会删除用户信息，删除用户的同时删除用户下的全部订单，暂不考虑商家接单情况
 async function deleteClient(req, res) {
   const { clientId } = req.params;
   const client = await Client.findByIdAndDelete(clientId).exec();
   if (!client) {
     return res.status(404).json("client not found");
   }
+  Order.deleteMany({ client: client._id }, function(error) {
+    if (!error) {
+      console.log("success");
+    }
+  });
   return res.status(200).json(client);
 }
 
-async function addOrder(req, res) {
+//用户点击按钮删除订单（把订单变为不可见状态）
+async function clientDeleteOrder(req, res) {
   const { clientId, orderId } = req.params;
-  const client = await Client.findById(clientId).exec();
   const order = await Order.findById(orderId).exec();
-  if (!client || !order) {
-    return res.status(404).json("client or order not found");
-  }
-  client.orders.addToSet(order._id);
-  order.client = client._id;
-  await client.save();
+  order.visible = false;
   await order.save();
-  return res.json(client);
+  return res.json(order);
 }
 
-async function deleteOrder(req, res) {
-  const { clientId, orderId } = req.params;
-  const client = await Client.findById(clientId).exec();
-  const order = await Order.findById(orderId).exec();
-  if (!client || !order) {
-    return res.status(404).json("client or order not found");
-  }
-  const oldCount = client.orders.length;
-  client.orders.pull(order._id);
-  order.client = undefined;
-  if (oldCount === client.orders.length) {
-    return res.status(404).json("Enrollment does not exist");
-  }
-  await client.save();
-  await order.save();
-  return res.json(client);
-}
+//用户方退单 clientWithdraw属性改为true
 
 module.exports = {
   addClient,
@@ -134,6 +116,5 @@ module.exports = {
   getAllClients,
   updateClient,
   deleteClient,
-  addOrder,
-  deleteOrder
+  clientDeleteOrder
 };

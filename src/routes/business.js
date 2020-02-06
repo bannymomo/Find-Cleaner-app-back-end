@@ -5,7 +5,8 @@ const {
   getBusiness,
   getAllBusinesses,
   updateBusiness,
-  deleteBusiness
+  deleteBusiness,
+  addOrderToBusiness
 } = require("../controllers/business");
 
 router.get("/", getAllBusinesses);
@@ -13,5 +14,6 @@ router.get("/:businessId", getBusiness);
 router.post("/", addBusiness);
 router.put("/:businessId", updateBusiness);
 router.delete("/:businessId", deleteBusiness);
+router.put("/:businessId/orders/:orderId", addOrderToBusiness);
 
 module.exports = router;
