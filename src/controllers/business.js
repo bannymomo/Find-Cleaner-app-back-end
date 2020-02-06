@@ -1,4 +1,5 @@
 const Business = require("../models/business");
+const Order = require("../models/order");
 async function addBusiness(req, res) {
   const {
     businessName,
@@ -30,7 +31,9 @@ async function addBusiness(req, res) {
 
 async function getBusiness(req, res) {
   const { businessId } = req.params;
-  const business = await Business.findById(businessId).exec();
+  const business = await Business.findById(businessId)
+    .populate("orders")
+    .exec();
   if (!business) {
     return res.status(404).json("business not found");
   }
@@ -82,6 +85,7 @@ async function updateBusiness(req, res) {
 }
 
 async function deleteBusiness(req, res) {
+  //仅用于测试，真实情况下不会删除商家，这里不与订单做绑定
   const { businessId } = req.params;
   const business = await Business.findByIdAndDelete(businessId).exec();
   if (!business) {
@@ -90,10 +94,29 @@ async function deleteBusiness(req, res) {
   return res.status(200).json(business);
 }
 
+//商家接单
+async function addOrderToBusiness(req, res) {
+  const { businessId, orderId } = req.params;
+  const business = await Business.findById(businessId);
+  const order = await Order.findById(orderId);
+  if (!business || !order) {
+    return res.status(404).json("business or order not found");
+  }
+  business.orders.addToSet(order._id);
+  order.business = business._id;
+  order.businessHandle = true;
+  await order.save();
+  await business.save();
+  return res.json(business);
+}
+
+//商家退单 businessWithdraw设为true
+
 module.exports = {
   addBusiness,
   getBusiness,
   getAllBusinesses,
   updateBusiness,
-  deleteBusiness
+  deleteBusiness,
+  addOrderToBusiness
 };
