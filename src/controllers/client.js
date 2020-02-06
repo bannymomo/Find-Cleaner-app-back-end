@@ -29,7 +29,7 @@ async function addClient(req, res) {
     description
   });
   await client.save();
-  responseFormatter(res, 200, null, client);
+  return responseFormatter(res, 200, null, client);
 }
 
 async function getClient(req, res) {
@@ -38,14 +38,14 @@ async function getClient(req, res) {
     .populate("orders")
     .exec();
   if (!client) {
-    responseFormatter(res, 404, "client not found", null);
+    return responseFormatter(res, 404, "client not found", null);
   }
-  responseFormatter(res, 200, null, client);
+  return responseFormatter(res, 200, null, client);
 }
 
 async function getAllClients(req, res) {
   const clients = await Client.find().exec();
-  responseFormatter(res, 200, null, clients);
+  return responseFormatter(res, 200, null, clients);
 }
 async function updateClient(req, res) {
   const { clientId } = req.params;
@@ -76,7 +76,7 @@ async function updateClient(req, res) {
   };
   const client = await Client.findById(clientId);
   if (!client) {
-    responseFormatter(res, 404, "client not found", null);
+    return responseFormatter(res, 404, "client not found", null);
   }
 
   Object.keys(fields).forEach(key => {
@@ -85,7 +85,7 @@ async function updateClient(req, res) {
     }
   });
   await client.save();
-  responseFormatter(res, 200, null, client);
+  return responseFormatter(res, 200, null, client);
 }
 
 //只用于测试，使用时不会删除用户信息，删除用户的同时删除用户下的全部订单，暂不考虑商家接单情况
@@ -93,14 +93,14 @@ async function deleteClient(req, res) {
   const { clientId } = req.params;
   const client = await Client.findByIdAndDelete(clientId).exec();
   if (!client) {
-    responseFormatter(res, 404, "client not found", null);
+    return responseFormatter(res, 404, "client not found", null);
   }
   Order.deleteMany({ client: client._id }, function(error) {
     if (!error) {
       console.log("success");
     }
   });
-  responseFormatter(res, 200, null, client);
+  return responseFormatter(res, 200, null, client);
 }
 
 //用户点击按钮删除订单（把订单变为不可见状态）
@@ -109,7 +109,7 @@ async function clientDeleteOrder(req, res) {
   const order = await Order.findById(orderId).exec();
   order.visible = false;
   await order.save();
-  responseFormatter(res, 200, null, order);
+  return responseFormatter(res, 200, null, order);
 }
 
 //用户方退单 clientWithdraw属性改为true

@@ -1,14 +1,19 @@
+const responseFormatter = require("../utils/responseFormatter");
+
 module.exports = (err, req, res, next) => {
   if (err.name === "ValidationError") {
-    return res.status(400).json(err.message);
+    responseFormatter(res, 400, err.message, null);
   }
 
   if (err.name === "CastError") {
-    return res.status(400).json(err.message);
+    responseFormatter(res, 400, err.message, null);
   }
   if (err.type === "entity.parse.failed") {
-    return res.status(400).json("entity parse failed");
+    responseFormatter(res, 400, "entity parse failed", null);
+  }
+  if (err.name === "ObjectParameterError") {
+    responseFormatter(res, 400, err.message, null);
   }
   console.error(err);
-  return res.status(500).json("something unexpected happened");
+  responseFormatter(res, 500, "something unexpected happened", null);
 };

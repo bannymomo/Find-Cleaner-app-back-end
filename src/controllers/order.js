@@ -40,13 +40,13 @@ async function addOrder(req, res) {
   const { clientId } = req.params;
   const client = await Client.findById(clientId);
   if (!client) {
-    responseFormatter(res, 404, "client not found", null);
+    return responseFormatter(res, 404, "client not found", null);
   }
   client.orders.addToSet(order._id);
   order.client = client._id;
   await order.save();
   await client.save();
-  responseFormatter(res, 200, null, order);
+  return responseFormatter(res, 200, null, order);
 }
 
 async function getOrder(req, res) {
@@ -55,14 +55,14 @@ async function getOrder(req, res) {
     .populate("business client")
     .exec();
   if (!order) {
-    responseFormatter(res, 404, "order not found", null);
+    return responseFormatter(res, 404, "order not found", null);
   }
-  responseFormatter(res, 200, null, order);
+  return responseFormatter(res, 200, null, order);
 }
 
 async function getAllOrders(req, res) {
   const orders = await Order.find().exec();
-  responseFormatter(res, 200, null, orders);
+  return responseFormatter(res, 200, null, orders);
 }
 
 async function updateOrder(req, res) {
@@ -102,7 +102,7 @@ async function updateOrder(req, res) {
   };
   const order = await Order.findById(orderId);
   if (!order) {
-    responseFormatter(res, 404, "order not found", null);
+    return responseFormatter(res, 404, "order not found", null);
   }
 
   Object.keys(fields).forEach(key => {
@@ -111,7 +111,7 @@ async function updateOrder(req, res) {
     }
   });
   await order.save();
-  responseFormatter(res, 200, null, order);
+  return responseFormatter(res, 200, null, order);
 }
 async function deleteOrder(req, res) {
   //仅用于测试，真实情况下不会删除用户的操作记录，
@@ -121,16 +121,16 @@ async function deleteOrder(req, res) {
   const client = await Client.findById(clientId).exec();
   const order = await Order.findByIdAndDelete(orderId).exec();
   if (!client || !order) {
-    responseFormatter(res, 404, "client or order not found", null);
+    return responseFormatter(res, 404, "client or order not found", null);
   }
   const oldCount = client.orders.length;
   client.orders.pull(order._id);
   order.client = null; //（订单已经不存在了，单方面取消用户和订单的关系也ok）
   if (oldCount === client.orders.length) {
-    responseFormatter(res, 404, "Enrollment does not exist", null);
+    return responseFormatter(res, 404, "Enrollment does not exist", null);
   }
   await client.save();
-  responseFormatter(res, 200, null, order);
+  return responseFormatter(res, 200, null, order);
 }
 
 module.exports = {

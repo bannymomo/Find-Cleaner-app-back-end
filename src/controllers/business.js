@@ -27,7 +27,7 @@ async function addBusiness(req, res) {
     description
   });
   await business.save();
-  responseFormatter(res, 200, null, business);
+  return responseFormatter(res, 200, null, business);
 }
 
 async function getBusiness(req, res) {
@@ -36,14 +36,14 @@ async function getBusiness(req, res) {
     .populate("orders")
     .exec();
   if (!business) {
-    responseFormatter(res, 404, "business not found", null);
+    return responseFormatter(res, 404, "business not found", null);
   }
-  responseFormatter(res, 200, null, business);
+  return responseFormatter(res, 200, null, business);
 }
 
 async function getAllBusinesses(req, res) {
   const businesses = await Business.find().exec();
-  responseFormatter(res, 200, null, businesses);
+  return responseFormatter(res, 200, null, businesses);
 }
 
 async function updateBusiness(req, res) {
@@ -75,7 +75,7 @@ async function updateBusiness(req, res) {
   };
   const business = await Business.findById(businessId).exec();
   if (!business) {
-    responseFormatter(res, 404, "business not found", null);
+    return responseFormatter(res, 404, "business not found", null);
   }
 
   Object.keys(fields).forEach(key => {
@@ -85,7 +85,7 @@ async function updateBusiness(req, res) {
   });
 
   await business.save();
-  responseFormatter(res, 200, null, business);
+  return responseFormatter(res, 200, null, business);
 }
 
 async function deleteBusiness(req, res) {
@@ -93,9 +93,9 @@ async function deleteBusiness(req, res) {
   const { businessId } = req.params;
   const business = await Business.findByIdAndDelete(businessId).exec();
   if (!business) {
-    responseFormatter(res, 404, "business not found", null);
+    return responseFormatter(res, 404, "business not found", null);
   }
-  responseFormatter(res, 200, null, business);
+  return responseFormatter(res, 200, null, business);
 }
 
 //商家接单
@@ -104,14 +104,14 @@ async function addOrderToBusiness(req, res) {
   const business = await Business.findById(businessId);
   const order = await Order.findById(orderId);
   if (!business || !order) {
-    responseFormatter(res, 404, "business or order not found", null);
+    return responseFormatter(res, 404, "business or order not found", null);
   }
   business.orders.addToSet(order._id);
   order.business = business._id;
   order.businessHandle = true;
   await order.save();
   await business.save();
-  responseFormatter(res, 200, null, business);
+  return responseFormatter(res, 200, null, business);
 }
 
 //商家退单 businessWithdraw设为true
