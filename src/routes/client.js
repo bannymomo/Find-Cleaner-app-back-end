@@ -1,6 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const {
+  authGuardBusiness,
+  authGuardClient
+} = require("../middleware/authGuard");
+const {
   addClient,
   getClient,
   getAllClients,
@@ -9,11 +13,11 @@ const {
   clientDeleteOrder
 } = require("../controllers/client");
 
-router.get("/", getAllClients);
+router.get("/", getAllClients); //admin
 router.get("/:clientId", getClient);
-router.post("/", addClient);
-router.put("/:clientId", updateClient);
-router.delete("/:clientId", deleteClient);
-router.put("/:clientId/orders/:orderId", clientDeleteOrder);
+router.post("/", authGuardClient, addClient);
+router.put("/:clientId", authGuardClient, updateClient);
+router.delete("/:clientId", authGuardClient, deleteClient);
+router.put("/:clientId/orders/:orderId", authGuardClient, clientDeleteOrder);
 
 module.exports = router;
