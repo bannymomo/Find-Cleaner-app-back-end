@@ -13,6 +13,7 @@ async function addUser(req, res) {
     password,
     role
   });
+  await user.hashPassword();
   await user.save();
   const token = generateToken({ id: user._id, role: user.role });
   return responseFormatter(res, 200, null, {

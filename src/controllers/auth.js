@@ -8,7 +8,7 @@ async function loginUser(req, res) {
   if (!existingUser) {
     return responseFormatter(res, 400, "Invalid username or password", null);
   }
-  if (existingUser.password !== password) {
+  if (!(await existingUser.validatePassword(password))) {
     return responseFormatter(res, 400, "Invalid username or password", null);
   }
 
