@@ -17,6 +17,7 @@ async function loginUser(req, res) {
     role: existingUser.role
   });
   return responseFormatter(res, 200, null, {
+    userId: existingUser._id,
     userName: existingUser.username,
     userRole: existingUser.role,
     token

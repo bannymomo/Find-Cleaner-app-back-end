@@ -12,10 +12,10 @@ const {
   deleteOrder
 } = require("../controllers/order");
 
-router.get("/", authGuardBusiness, getAllOrders);
+router.get("/", getAllOrders);
 router.get("/:orderId", getOrder);
-router.put("/:orderId", authGuardClient, updateOrder);
-router.post("/clients/:clientId", authGuardClient, addOrder);
-router.delete("/:orderId/clients/:clientId", authGuardClient, deleteOrder);
+router.put("/:orderId", updateOrder);
+router.post("/clients/:clientId", addOrder);
+router.delete("/:orderId/clients/:clientId", deleteOrder);
 
 module.exports = router;

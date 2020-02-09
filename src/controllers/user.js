@@ -23,35 +23,41 @@ async function addUser(req, res) {
   });
 }
 
-async function getUser(req, res) {
-  const { userId } = req.params;
-  const user = await User.findById(userId).exec();
-  if (!user) {
-    return responseFormatter(res, 404, "User not found", null);
-  }
-  return responseFormatter(res, 200, null, user);
-}
-
-async function getAllUsers(req, res) {
-  const users = await User.find().exec();
-  return responseFormatter(res, 200, null, users);
-}
-
 async function updateUser(req, res) {
   const { userId } = req.params;
-  const { username, password, client, business, role } = req.body;
-  const fields = { username, password, client, business, role };
-  const user = await User.findById(userId);
-  if (!user) {
+  const { oldPassword, newPassword, doublecheckPassword } = req.body;
+  const existingUser = await User.findById(userId).exec();
+  if (!existingUser) {
     return responseFormatter(res, 404, "user not found", null);
   }
-  Object.keys(fields).forEach(key => {
-    if (fields[key] !== undefined) {
-      user[key] = fields[key];
-    }
+  if (!(await existingUser.validatePassword(oldPassword))) {
+    return responseFormatter(res, 400, "Invalid old password", null);
+  }
+  if (
+    !newPassword ||
+    !doublecheckPassword ||
+    newPassword !== doublecheckPassword
+  ) {
+    return responseFormatter(
+      res,
+      400,
+      "New passwords entered twice are inconsistent",
+      null
+    );
+  }
+  existingUser.password = newPassword;
+  await existingUser.hashPassword();
+  await existingUser.save();
+  const token = generateToken({
+    id: existingUser._id,
+    role: existingUser.role
   });
-  await user.save();
-  return responseFormatter(res, 200, null, user);
+  return responseFormatter(res, 200, null, {
+    userId: existingUser._id,
+    userName: existingUser.username,
+    userRole: existingUser.role,
+    token
+  });
 }
 
-module.exports = { addUser, getUser, getAllUsers, updateUser };
+module.exports = { addUser, updateUser };

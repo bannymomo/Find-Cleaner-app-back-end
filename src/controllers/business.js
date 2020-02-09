@@ -1,5 +1,5 @@
 const Business = require("../models/business");
-const Order = require("../models/order");
+const User = require("../models/user");
 const responseFormatter = require("../utils/responseFormatter");
 async function addBusiness(req, res) {
   const {
@@ -26,14 +26,26 @@ async function addBusiness(req, res) {
     photo,
     description
   });
+  const user = await User.findById(req.user.id).exec();
+  if (user.business) {
+    return responseFormatter(
+      res,
+      400,
+      "Business cannot be registered twice with the same username",
+      null
+    );
+  }
+  business.user = req.user.id;
   await business.save();
+  user.business = business._id;
+  await user.save();
   return responseFormatter(res, 200, null, business);
 }
 
 async function getBusiness(req, res) {
   const { businessId } = req.params;
   const business = await Business.findById(businessId)
-    .populate("orders")
+    .populate("orders user")
     .exec();
   if (!business) {
     return responseFormatter(res, 404, "business not found", null);
@@ -78,6 +90,11 @@ async function updateBusiness(req, res) {
     return responseFormatter(res, 404, "business not found", null);
   }
 
+  if (business.user.toString() !== req.user.id) {
+    //如果business的userID即user注册ID与token里面携带的id不相符，代表不是本人操作，不允许修改）
+    return responseFormatter(res, 401, "No permission to change", null);
+  }
+
   Object.keys(fields).forEach(key => {
     if (fields[key] !== undefined) {
       business[key] = fields[key];
@@ -88,39 +105,9 @@ async function updateBusiness(req, res) {
   return responseFormatter(res, 200, null, business);
 }
 
-async function deleteBusiness(req, res) {
-  //仅用于测试，真实情况下不会删除商家，这里不与订单做绑定
-  const { businessId } = req.params;
-  const business = await Business.findByIdAndDelete(businessId).exec();
-  if (!business) {
-    return responseFormatter(res, 404, "business not found", null);
-  }
-  return responseFormatter(res, 200, null, business);
-}
-
-//商家接单
-async function addOrderToBusiness(req, res) {
-  const { businessId, orderId } = req.params;
-  const business = await Business.findById(businessId);
-  const order = await Order.findById(orderId);
-  if (!business || !order) {
-    return responseFormatter(res, 404, "business or order not found", null);
-  }
-  business.orders.addToSet(order._id);
-  order.business = business._id;
-  order.businessHandle = true;
-  await order.save();
-  await business.save();
-  return responseFormatter(res, 200, null, business);
-}
-
-//商家退单 businessWithdraw设为true
-
 module.exports = {
   addBusiness,
   getBusiness,
   getAllBusinesses,
-  updateBusiness,
-  deleteBusiness,
-  addOrderToBusiness
+  updateBusiness
 };

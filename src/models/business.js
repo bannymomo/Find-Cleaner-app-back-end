@@ -54,7 +54,8 @@ const schema = new mongoose.Schema({
     default: "Find Cleaner app business",
     trim: true
   },
-  orders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }]
+  orders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }],
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User" }
 });
 
 const model = mongoose.model("Business", schema);

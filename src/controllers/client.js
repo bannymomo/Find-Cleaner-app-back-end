@@ -1,5 +1,5 @@
 const Client = require("../models/client");
-const Order = require("../models/order");
+const User = require("../models//user");
 const responseFormatter = require("../utils/responseFormatter");
 
 async function addClient(req, res) {
@@ -28,25 +28,38 @@ async function addClient(req, res) {
     photo,
     description
   });
+  const user = await User.findById(req.user.id).exec();
+  if (user.client) {
+    return responseFormatter(
+      res,
+      400,
+      "Client cannot be registered twice with the same username",
+      null
+    );
+  }
+  client.user = req.user.id;
   await client.save();
+  user.client = client._id;
+  await user.save();
   return responseFormatter(res, 200, null, client);
 }
 
 async function getClient(req, res) {
   const { clientId } = req.params;
   const client = await Client.findById(clientId)
-    .populate("orders")
+    .populate("orders user")
     .exec();
   if (!client) {
     return responseFormatter(res, 404, "client not found", null);
   }
+  if (client.user._id.toString() !== req.user.id) {
+    //客户信息只允许客户本人获取，如果client的userID即user注册ID与token里面携带的id不相符，代表不是本人操作，不允许访问资料）
+    return responseFormatter(res, 401, "No permission to read", null);
+  }
+
   return responseFormatter(res, 200, null, client);
 }
 
-async function getAllClients(req, res) {
-  const clients = await Client.find().exec();
-  return responseFormatter(res, 200, null, clients);
-}
 async function updateClient(req, res) {
   const { clientId } = req.params;
   const {
@@ -79,6 +92,10 @@ async function updateClient(req, res) {
     return responseFormatter(res, 404, "client not found", null);
   }
 
+  if (client.user.toString() !== req.user.id) {
+    //如果client的userID即user注册ID与token里面携带的id不相符，代表不是本人操作，不允许修改）
+    return responseFormatter(res, 401, "No permission to change", null);
+  }
   Object.keys(fields).forEach(key => {
     if (fields[key] !== undefined) {
       client[key] = fields[key];
@@ -88,37 +105,8 @@ async function updateClient(req, res) {
   return responseFormatter(res, 200, null, client);
 }
 
-//只用于测试，使用时不会删除用户信息，删除用户的同时删除用户下的全部订单，暂不考虑商家接单情况
-async function deleteClient(req, res) {
-  const { clientId } = req.params;
-  const client = await Client.findByIdAndDelete(clientId).exec();
-  if (!client) {
-    return responseFormatter(res, 404, "client not found", null);
-  }
-  Order.deleteMany({ client: client._id }, function(error) {
-    if (!error) {
-      console.log("success");
-    }
-  });
-  return responseFormatter(res, 200, null, client);
-}
-
-//用户点击按钮删除订单（把订单变为不可见状态）
-async function clientDeleteOrder(req, res) {
-  const { clientId, orderId } = req.params;
-  const order = await Order.findById(orderId).exec();
-  order.visible = false;
-  await order.save();
-  return responseFormatter(res, 200, null, order);
-}
-
-//用户方退单 clientWithdraw属性改为true
-
 module.exports = {
   addClient,
   getClient,
-  getAllClients,
-  updateClient,
-  deleteClient,
-  clientDeleteOrder
+  updateClient
 };
