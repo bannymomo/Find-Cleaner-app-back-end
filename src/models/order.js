@@ -1,24 +1,16 @@
 const mongoose = require("mongoose");
 const schema = new mongoose.Schema({
-  visible: {
-    type: Boolean,
+  status: {
+    type: String,
     required: true,
-    default: true
-  },
-  clientWithdraw: {
-    type: Boolean,
-    required: true,
-    default: false
-  },
-  businessHandle: {
-    type: Boolean,
-    required: true,
-    default: false
-  },
-  businessWithdraw: {
-    type: Boolean,
-    required: true,
-    default: false
+    default: "new",
+    enum: [
+      "new",
+      "cancelledByClient",
+      "accepted",
+      "cancelledByBusiness",
+      "done"
+    ]
   },
   postBy: {
     type: String,
@@ -42,11 +34,6 @@ const schema = new mongoose.Schema({
     required: true
   },
 
-  price: {
-    type: Number,
-    required: true
-  },
-
   dueDate: {
     type: Date,
     default: Date.now
@@ -58,21 +45,6 @@ const schema = new mongoose.Schema({
     trim: true
   },
 
-  orderConfirmed: {
-    type: Boolean,
-    default: false
-  },
-
-  projectCompleted: {
-    type: Boolean,
-    default: false
-  },
-
-  orderEvaluation: {
-    type: String,
-    default: "",
-    trim: true
-  },
   client: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Client"

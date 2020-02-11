@@ -7,15 +7,25 @@ const {
 const {
   addOrder,
   getOrder,
-  getAllOrders,
+  getOrdersByQuery,
   updateOrder,
-  deleteOrder
+  updateOrderStatusByClient,
+  updateOrderStatusByBusiness
 } = require("../controllers/order");
 
-router.get("/", getAllOrders);
+router.get("/", getOrdersByQuery);
 router.get("/:orderId", getOrder);
-router.put("/:orderId", updateOrder);
-router.post("/clients/:clientId", addOrder);
-router.delete("/:orderId/clients/:clientId", deleteOrder);
+router.put("/:orderId", authGuardClient, updateOrder);
+router.post("/", authGuardClient, addOrder);
+router.patch(
+  "/:orderId/clients/:clientId",
+  authGuardClient,
+  updateOrderStatusByClient
+);
+router.patch(
+  "/:orderId/businesses/:businessId",
+  authGuardBusiness,
+  updateOrderStatusByBusiness
+);
 
 module.exports = router;
