@@ -1,4 +1,5 @@
 const Client = require("../models/client");
+const Order = require("../models/order");
 const User = require("../models//user");
 const responseFormatter = require("../utils/responseFormatter");
 
@@ -105,8 +106,23 @@ async function updateClient(req, res) {
   return responseFormatter(res, 200, null, client);
 }
 
+async function getHisOrders(req, res) {
+  const { clientId } = req.params;
+  const { status } = req.query;
+  const client = await Client.findById(clientId).exec();
+  if (!client) {
+    return responseFormatter(res, 404, "client not found", null);
+  }
+  const orders = await Order.find().exec();
+  let ordersList = orders.filter(order => order.client.toString() === clientId);
+  if ( status ) {
+    ordersList = ordersList.filter(order => order.status === status);
+  }
+  return responseFormatter(res, 200, null, ordersList);
+}
 module.exports = {
   addClient,
   getClient,
-  updateClient
+  updateClient,
+  getHisOrders
 };

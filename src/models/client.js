@@ -16,14 +16,14 @@ const schema = new mongoose.Schema(
     },
     gender: {
       type: String,
-      required: true,
+      // required: true,
       trim: true
     },
     age: {
       type: Number,
       min: 10,
       max: 95,
-      default: 20
+      // default: 20
     },
     email: {
       type: String,
@@ -39,7 +39,7 @@ const schema = new mongoose.Schema(
     },
     postcode: {
       type: Number,
-      required: true
+      // required: true
     },
     memberSince: {
       type: Date,

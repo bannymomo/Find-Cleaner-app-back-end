@@ -1,31 +1,21 @@
 const mongoose = require("mongoose");
 const schema = new mongoose.Schema({
-  visible: {
-    type: Boolean,
-    required: true,
-    default: true
-  },
-  clientWithdraw: {
-    type: Boolean,
-    required: true,
-    default: false
-  },
-  businessHandle: {
-    type: Boolean,
-    required: true,
-    default: false
-  },
-  businessWithdraw: {
-    type: Boolean,
-    required: true,
-    default: false
-  },
-  postBy: {
+  status: {
     type: String,
-    required: true,
-    trim: true
+    // required: true,
+    default: "new",
+    enum: ["new", "cancelledByClient", "accepted", "cancelledByBusiness", "done"]
   },
-
+  bedrooms: {
+    type: Number,
+    required: true,
+    enum: [1, 2, 3, 4, 5]
+},
+  bathrooms: {
+    type: Number,
+    required: true,
+    enum: [1, 2, 3]
+  },
   postDate: {
     type: Date,
     default: Date.now
@@ -37,20 +27,10 @@ const schema = new mongoose.Schema({
     trim: true
   },
 
-  budget: {
-    type: Number,
-    required: true
-  },
-
-  price: {
-    type: Number,
-    required: true
-  },
-
-  dueDate: {
-    type: Date,
-    default: Date.now
-  },
+  // dueDate: {
+  //   type: Date,
+  //   default: Date.now
+  // },
 
   description: {
     type: String,
@@ -58,27 +38,22 @@ const schema = new mongoose.Schema({
     trim: true
   },
 
-  orderConfirmed: {
-    type: Boolean,
-    default: false
-  },
-
-  projectCompleted: {
-    type: Boolean,
-    default: false
-  },
-
-  orderEvaluation: {
-    type: String,
-    default: "",
-    trim: true
-  },
+  // orderEvaluation: {
+  //   type: String,
+  //   default: "",
+  //   trim: true
+  // },
   client: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Client"
   },
 
   business: { type: mongoose.Schema.Types.ObjectId, ref: "Business" }
+},
+{ toJSON: { virtuals: true}, id: false }
+);
+schema.virtual("price").get(function() {
+  return this.bedrooms * 25 + this.bathrooms * 35;
 });
 
 const model = mongoose.model("Order", schema);

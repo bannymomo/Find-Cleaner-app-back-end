@@ -1,46 +1,31 @@
 const Order = require("../models/order");
 const Client = require("../models/client");
+const Business = require("../models/business");
 const responseFormatter = require("../utils/responseFormatter");
 async function addOrder(req, res) {
   //订单由用户创建，订单对用户即1对1关系，路径中传用户id，订单与用户双向绑定关系，
-  //创建时,用户未撤单clientWithdraw为false，商家未接单businessHandle为false，
-  //商家未退单，businessWithdraw为false
+  //创建时 status : new
   const {
-    visible,
-    clientWithdraw,
-    businessHandle,
-    businessWithdraw,
-    postBy,
+    bedrooms,
+    bathrooms,
     postDate,
     location,
-    budget,
-    price,
-    dueDate,
-    description,
-    orderConfirmed,
-    projectCompleted,
-    orderEvaluation
+    description
   } = req.body;
   const order = new Order({
-    visible,
-    clientWithdraw,
-    businessHandle,
-    businessWithdraw,
-    postBy,
+    bedrooms,
+    bathrooms,
     postDate,
     location,
-    budget,
-    price,
-    dueDate,
-    description,
-    orderConfirmed,
-    projectCompleted,
-    orderEvaluation
+    description
   });
-  const { clientId } = req.params;
+  const { clientId } = req.query;
   const client = await Client.findById(clientId);
   if (!client) {
-    return responseFormatter(res, 404, "client not found", null);
+    return responseFormatter(res, 404, "Client not found", null);
+  }
+  if (client.user.toString() !== req.user.id) {
+    return responseFormatter(res, 404, "Access denied", null);
   }
   client.orders.addToSet(order._id);
   order.client = client._id;
@@ -55,54 +40,39 @@ async function getOrder(req, res) {
     .populate("business client")
     .exec();
   if (!order) {
-    return responseFormatter(res, 404, "order not found", null);
+    return responseFormatter(res, 404, "Order not found", null);
   }
   return responseFormatter(res, 200, null, order);
 }
 
 async function getAllOrders(req, res) {
   const orders = await Order.find().exec();
-  return responseFormatter(res, 200, null, orders);
+  
+  const ordersList = orders.filter(order => order.status === "new");
+  return responseFormatter(res, 200, null, ordersList);
 }
 
 async function updateOrder(req, res) {
   const { orderId } = req.params;
   const {
-    visible,
-    clientWithdraw,
-    businessHandle,
-    businessWithdraw,
-    postBy,
+    bedrooms,
+    bathrooms,
     postDate,
     location,
-    budget,
-    price,
-    dueDate,
-    description,
-    orderConfirmed,
-    projectCompleted,
-    orderEvaluation
+    description
   } = req.body;
 
   const fields = {
-    visible,
-    clientWithdraw,
-    businessHandle,
-    businessWithdraw,
-    postBy,
+    bedrooms,
+    bathrooms,
     postDate,
     location,
-    budget,
-    price,
-    dueDate,
-    description,
-    orderConfirmed,
-    projectCompleted,
-    orderEvaluation
+    description
   };
-  const order = await Order.findById(orderId);
+  const order = await Order.findById(orderId).exec();
+  // could be done by front-end?
   if (!order) {
-    return responseFormatter(res, 404, "order not found", null);
+    return responseFormatter(res, 404, "Order not found", null);
   }
 
   Object.keys(fields).forEach(key => {
@@ -113,24 +83,53 @@ async function updateOrder(req, res) {
   await order.save();
   return responseFormatter(res, 200, null, order);
 }
-async function deleteOrder(req, res) {
-  //仅用于测试，真实情况下不会删除用户的操作记录，
-  //路径中传用户id和订单id，删除订单的时候同时双向取消用户和订单的关系，
-  //此部分暂时不考虑商家接单，不绑定
-  const { orderId, clientId } = req.params;
-  const client = await Client.findById(clientId).exec();
-  const order = await Order.findByIdAndDelete(orderId).exec();
-  if (!client || !order) {
-    return responseFormatter(res, 404, "client or order not found", null);
+
+async function updateOrderStatusByClient(req, res) {
+  const { orderId } = req.params;
+  const { status } = req.query;
+  const order = await Order.findById(orderId).exec();
+
+  if (!order) {
+    return responseFormatter(res, 404, "Order not found", null);
   }
-  const oldCount = client.orders.length;
-  client.orders.pull(order._id);
-  order.client = null; //（订单已经不存在了，单方面取消用户和订单的关系也ok）
-  if (oldCount === client.orders.length) {
-    return responseFormatter(res, 404, "Enrollment does not exist", null);
+
+  if ((order.status === "new" && status ==="new")||(order.status === "new" && status ==="cancelledByClient")||(order.status === "accepted" && status ==="done")) {
+    order.status = status;
+    await order.save();
+    return responseFormatter(res, 200, null, order);
+  } else {
+    return responseFormatter(res, 400, "Cannot change order status", null);
   }
-  await client.save();
-  return responseFormatter(res, 200, null, order);
+
+}
+
+async function updateOrderStatusByBusiness(req, res) {
+  const { orderId, businessId } = req.params;
+  const { status } = req.query;
+  const business = await Business.findById(businessId).exec();
+  if (!business) {
+    return responseFormatter(res, 404, "Business not found", null);
+  }
+  const order = await Order.findById(orderId).exec();
+  if (!order) {
+    return responseFormatter(res, 404, "Order not found", null);
+  }
+
+  if (order.status === "new" && status === "accepted") {
+    order.status = status;
+    business.orders.addToSet(orderId);
+    order.business = businessId;
+    await order.save();
+    await business.save();
+    return responseFormatter(res, 200, null, order);
+  } else if ( order.status === "accepted" && status === "cancelledByBusiness") {
+    order.status = status;
+    await order.save();
+    return responseFormatter(res, 200, null, order);
+  } else {
+    return responseFormatter(res, 400, "Cannot change order status", null);
+  }
+
 }
 
 module.exports = {
@@ -138,5 +137,6 @@ module.exports = {
   getOrder,
   getAllOrders,
   updateOrder,
-  deleteOrder
+  updateOrderStatusByClient,
+  updateOrderStatusByBusiness
 };

@@ -9,13 +9,22 @@ const {
   getOrder,
   getAllOrders,
   updateOrder,
-  deleteOrder
+  updateOrderStatusByClient,
+  updateOrderStatusByBusiness
 } = require("../controllers/order");
 
-router.get("/", getAllOrders);
+
+//create order
+router.post("/", addOrder);
+// client update his order
+router.put("/:orderId", authGuardClient, updateOrder);
+//change order status: 
+router.patch("/:orderId/clients/:clientId", updateOrderStatusByClient);
+router.patch("/:orderId/businesses/:businessId", updateOrderStatusByBusiness);
+// business get all new orders ||business get all his orders ||client get all his orders
+router.get("/", authGuardBusiness, getAllOrders);
+// client gets his order || business get his order
 router.get("/:orderId", getOrder);
-router.put("/:orderId", updateOrder);
-router.post("/clients/:clientId", addOrder);
-router.delete("/:orderId/clients/:clientId", deleteOrder);
+
 
 module.exports = router;
