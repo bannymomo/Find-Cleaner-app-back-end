@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "nodemon src/index.js"
   },
-  "author": "Skye",
+  "author": "project 3 team",
   "license": "ISC",
   "dependencies": {
     "@hapi/joi": "^17.1.0",
