@@ -1,4 +1,5 @@
 const Business = require("../models/business");
+const Order = require("../models/order");
 const User = require("../models/user");
 const responseFormatter = require("../utils/responseFormatter");
 async function addBusiness(req, res) {
@@ -105,9 +106,26 @@ async function updateBusiness(req, res) {
   return responseFormatter(res, 200, null, business);
 }
 
+async function getHisOrders(req, res) {
+  const { businessId } = req.params;
+  const { status } = req.query;
+  const business = await Business.findById(businessId).exec();
+  if (!business) {
+    return responseFormatter(res, 404, "client not found", null);
+  }
+  const orders = await Order.find().exec();
+  let ordersList = orders.filter(order => order.business);
+  ordersList = ordersList.filter(order => order.business.toString() === businessId);
+  if ( status ) {
+    ordersList = ordersList.filter(order => order.status === status);
+  }
+  return responseFormatter(res, 200, null, ordersList);
+}
+
 module.exports = {
   addBusiness,
   getBusiness,
   getAllBusinesses,
-  updateBusiness
+  updateBusiness,
+  getHisOrders
 };

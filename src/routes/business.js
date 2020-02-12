@@ -5,12 +5,14 @@ const {
   addBusiness,
   getBusiness,
   getAllBusinesses,
-  updateBusiness
+  updateBusiness,
+  getHisOrders
 } = require("../controllers/business");
 
 router.get("/", getAllBusinesses);
 router.get("/:businessId", getBusiness);
 router.post("/", authGuardBusiness, addBusiness);
 router.put("/:businessId", authGuardBusiness, updateBusiness);
+router.get("/:businessId/orders", getHisOrders);
 
 module.exports = router;

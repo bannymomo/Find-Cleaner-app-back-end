@@ -30,6 +30,11 @@ need firstName, lastName, gender, age, email, postcode, memberSince, lastOnline,
 description from req.body
 need clientId from req.params
 
+get         localhost:4000/api/clients/:clientId/orders   function getHisOrders
+
+// client only can get their own orders and can sort by status
+need clinetId, status... from req.query
+
 
 BUSINESS
 post        localhost:4000/api/businesses               function addBusiness
@@ -47,6 +52,12 @@ photo, description from req.body
 need businessId from req.params
 
 
+get         localhost:4000/api/businesses/:businessId/orders   function getHisOrders
+
+// business can get their own orders and can sort by status
+need businessId, status... from req.query
+
+
 ORDER
 get         localhost:4000/api/orders/:orderId      function getOrder
 need orderId from req.params
@@ -61,13 +72,8 @@ put         localhost:4000/api/orders/:orderId      function updateOrder
 
 get         localhost:4000/api/orders/              function getOrdersByQuery
 
+//business can get all orders with status = "new"
 
-// client only can get their own orders and can sort by status
-need clinetId, status... from req.query
-// business can get all orders that status are [NEW]
-
-// business can get their own orders and can sort by status
-need businessId, status... from req.query
 
 
 order have 5 status: 

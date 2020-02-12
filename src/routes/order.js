@@ -7,25 +7,24 @@ const {
 const {
   addOrder,
   getOrder,
-  getOrdersByQuery,
+  getAllOrders,
   updateOrder,
   updateOrderStatusByClient,
   updateOrderStatusByBusiness
 } = require("../controllers/order");
 
-router.get("/", getOrdersByQuery);
-router.get("/:orderId", getOrder);
+
+//create order
+router.post("/", addOrder);
+// client update his order
 router.put("/:orderId", authGuardClient, updateOrder);
-router.post("/", authGuardClient, addOrder);
-router.patch(
-  "/:orderId/clients/:clientId",
-  authGuardClient,
-  updateOrderStatusByClient
-);
-router.patch(
-  "/:orderId/businesses/:businessId",
-  authGuardBusiness,
-  updateOrderStatusByBusiness
-);
+//change order status: 
+router.patch("/:orderId/clients/:clientId", updateOrderStatusByClient);
+router.patch("/:orderId/businesses/:businessId", updateOrderStatusByBusiness);
+// business get all new orders ||business get all his orders ||client get all his orders
+router.get("/", authGuardBusiness, getAllOrders);
+// client gets his order || business get his order
+router.get("/:orderId", getOrder);
+
 
 module.exports = router;

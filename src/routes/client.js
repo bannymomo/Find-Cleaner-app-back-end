@@ -1,13 +1,16 @@
 const express = require("express");
 const router = express.Router();
-const {
-  authGuardBusiness,
-  authGuardClient
-} = require("../middleware/authGuard");
-const { addClient, getClient, updateClient } = require("../controllers/client");
+const { authGuardClient } = require("../middleware/authGuard");
+const { 
+  addClient, 
+  getClient, 
+  updateClient, 
+  getHisOrders 
+} = require("../controllers/client");
 
 router.get("/:clientId", getClient);
 router.post("/", authGuardClient, addClient);
 router.put("/:clientId", authGuardClient, updateClient);
+router.get("/:clientId/orders", getHisOrders);
 
 module.exports = router;

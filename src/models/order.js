@@ -2,22 +2,20 @@ const mongoose = require("mongoose");
 const schema = new mongoose.Schema({
   status: {
     type: String,
-    required: true,
+    // required: true,
     default: "new",
-    enum: [
-      "new",
-      "cancelledByClient",
-      "accepted",
-      "cancelledByBusiness",
-      "done"
-    ]
+    enum: ["new", "cancelledByClient", "accepted", "cancelledByBusiness", "done"]
   },
-  postBy: {
-    type: String,
+  bedrooms: {
+    type: Number,
     required: true,
-    trim: true
+    enum: [1, 2, 3, 4, 5]
+},
+  bathrooms: {
+    type: Number,
+    required: true,
+    enum: [1, 2, 3]
   },
-
   postDate: {
     type: Date,
     default: Date.now
@@ -29,15 +27,10 @@ const schema = new mongoose.Schema({
     trim: true
   },
 
-  budget: {
-    type: Number,
-    required: true
-  },
-
-  dueDate: {
-    type: Date,
-    default: Date.now
-  },
+  // dueDate: {
+  //   type: Date,
+  //   default: Date.now
+  // },
 
   description: {
     type: String,
@@ -45,12 +38,22 @@ const schema = new mongoose.Schema({
     trim: true
   },
 
+  // orderEvaluation: {
+  //   type: String,
+  //   default: "",
+  //   trim: true
+  // },
   client: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Client"
   },
 
   business: { type: mongoose.Schema.Types.ObjectId, ref: "Business" }
+},
+{ toJSON: { virtuals: true}, id: false }
+);
+schema.virtual("price").get(function() {
+  return this.bedrooms * 25 + this.bathrooms * 35;
 });
 
 const model = mongoose.model("Order", schema);
