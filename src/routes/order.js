@@ -19,8 +19,8 @@ router.post("/", addOrder);
 // client update his order
 router.put("/:orderId", authGuardClient, updateOrder);
 //change order status: 
-router.patch("/:orderId/clients/:clientId", updateOrderStatusByClient);
-router.patch("/:orderId/businesses/:businessId", updateOrderStatusByBusiness);
+router.patch("/:orderId/clients/:clientId", authGuardClient, updateOrderStatusByClient);
+router.patch("/:orderId/businesses/:businessId", authGuardBusiness, updateOrderStatusByBusiness);
 // business get all new orders ||business get all his orders ||client get all his orders
 router.get("/", authGuardBusiness, getAllOrders);
 // client gets his order || business get his order

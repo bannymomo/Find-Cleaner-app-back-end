@@ -13,6 +13,6 @@ router.get("/", getAllBusinesses);
 router.get("/:businessId", getBusiness);
 router.post("/", authGuardBusiness, addBusiness);
 router.put("/:businessId", authGuardBusiness, updateBusiness);
-router.get("/:businessId/orders", getHisOrders);
+router.get("/:businessId/orders", authGuardBusiness, getHisOrders);
 
 module.exports = router;

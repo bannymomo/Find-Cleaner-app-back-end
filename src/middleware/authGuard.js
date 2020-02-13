@@ -1,5 +1,6 @@
 const { validateToken } = require("../utils/jwt");
 const responseFormatter = require("../utils/responseFormatter");
+const { clientRole, businessRole} = require("../utils/variables");
 
 function authGuard(req, res, next) {
   const authHeader = req.header("Authorization");
@@ -21,14 +22,14 @@ function authGuard(req, res, next) {
 }
 
 function authGuardClient(req, res, next) {
-  if (req.user.role === "client") {
+  if (req.user.role === clientRole) {
     return next();
   }
   return responseFormatter(res, 401, "Access denied", null);
 }
 
 function authGuardBusiness(req, res, next) {
-  if (req.user.role === "business") {
+  if (req.user.role === businessRole) {
     return next();
   }
   return responseFormatter(res, 401, "Access denied", null);

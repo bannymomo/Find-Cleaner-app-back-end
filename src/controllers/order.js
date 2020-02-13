@@ -2,9 +2,16 @@ const Order = require("../models/order");
 const Client = require("../models/client");
 const Business = require("../models/business");
 const responseFormatter = require("../utils/responseFormatter");
+const checkId = require("../utils/idCheck");
+
+const {  
+  newOrder, 
+  cancelledByClient, 
+  accepted, 
+  cancelledByBusiness, 
+  done } = require("../utils/variables");
+
 async function addOrder(req, res) {
-  //订单由用户创建，订单对用户即1对1关系，路径中传用户id，订单与用户双向绑定关系，
-  //创建时 status : new
   const {
     bedrooms,
     bathrooms,
@@ -20,13 +27,11 @@ async function addOrder(req, res) {
     description
   });
   const { clientId } = req.query;
-  const client = await Client.findById(clientId);
-  if (!client) {
-    return responseFormatter(res, 404, "Client not found", null);
-  }
-  if (client.user.toString() !== req.user.id) {
-    return responseFormatter(res, 404, "Access denied", null);
-  }
+  const client = await Client.findById(clientId).exec();
+
+  console.log(client);
+
+  checkId(client, req, res);
   client.orders.addToSet(order._id);
   order.client = client._id;
   await order.save();
@@ -36,19 +41,27 @@ async function addOrder(req, res) {
 
 async function getOrder(req, res) {
   const { orderId } = req.params;
-  const order = await Order.findById(orderId)
+  const order = await Order.findById(orderId).sort({postDate: 1})
     .populate("business client")
     .exec();
   if (!order) {
     return responseFormatter(res, 404, "Order not found", null);
   }
+  if (req.user.role === "client") {
+    const client = order.client;
+    checkId(client,req,res);
+  } else if (req.user.role === "business") {
+    const business = order.business;
+    checkId(business,req,res); 
+  }
+
   return responseFormatter(res, 200, null, order);
 }
 
 async function getAllOrders(req, res) {
-  const orders = await Order.find().exec();
+  const orders = await Order.find().sort({postDate: -1}).exec();
   
-  const ordersList = orders.filter(order => order.status === "new");
+  const ordersList = orders.filter(order => order.status === newOrder);
   return responseFormatter(res, 200, null, ordersList);
 }
 
@@ -70,10 +83,12 @@ async function updateOrder(req, res) {
     description
   };
   const order = await Order.findById(orderId).exec();
-  // could be done by front-end?
   if (!order) {
     return responseFormatter(res, 404, "Order not found", null);
   }
+  const client = await Client.findById(order.client);
+  checkId(client, req, res);
+
 
   Object.keys(fields).forEach(key => {
     if (fields[key] !== undefined) {
@@ -85,7 +100,7 @@ async function updateOrder(req, res) {
 }
 
 async function updateOrderStatusByClient(req, res) {
-  const { orderId } = req.params;
+  const { orderId, clientId } = req.params;
   const { status } = req.query;
   const order = await Order.findById(orderId).exec();
 
@@ -93,7 +108,11 @@ async function updateOrderStatusByClient(req, res) {
     return responseFormatter(res, 404, "Order not found", null);
   }
 
-  if ((order.status === "new" && status ==="new")||(order.status === "new" && status ==="cancelledByClient")||(order.status === "accepted" && status ==="done")) {
+  const client = await Client.findById(clientId).exec();
+  console.log(client);
+  checkId(client,req,res);
+
+  if ((order.status === newOrder && status === cancelledByClient)||(order.status === accepted && status === done)) {
     order.status = status;
     await order.save();
     return responseFormatter(res, 200, null, order);
@@ -107,22 +126,20 @@ async function updateOrderStatusByBusiness(req, res) {
   const { orderId, businessId } = req.params;
   const { status } = req.query;
   const business = await Business.findById(businessId).exec();
-  if (!business) {
-    return responseFormatter(res, 404, "Business not found", null);
-  }
+  checkId(business,req,res);
   const order = await Order.findById(orderId).exec();
   if (!order) {
     return responseFormatter(res, 404, "Order not found", null);
   }
 
-  if (order.status === "new" && status === "accepted") {
+  if (order.status === newOrder && status === accepted) {
     order.status = status;
     business.orders.addToSet(orderId);
     order.business = businessId;
     await order.save();
     await business.save();
     return responseFormatter(res, 200, null, order);
-  } else if ( order.status === "accepted" && status === "cancelledByBusiness") {
+  } else if ( order.status === accepted && status === cancelledByBusiness) {
     order.status = status;
     await order.save();
     return responseFormatter(res, 200, null, order);
