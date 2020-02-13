@@ -11,6 +11,6 @@ const {
 router.get("/:clientId", getClient);
 router.post("/", authGuardClient, addClient);
 router.put("/:clientId", authGuardClient, updateClient);
-router.get("/:clientId/orders", getHisOrders);
+router.get("/:clientId/orders", authGuardClient, getHisOrders);
 
 module.exports = router;

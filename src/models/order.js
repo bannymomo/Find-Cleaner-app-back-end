@@ -1,10 +1,17 @@
 const mongoose = require("mongoose");
+const {  
+  newOrder, 
+  cancelledByClient, 
+  accepted, 
+  cancelledByBusiness, 
+  done } = require("../utils/variables");
+  
 const schema = new mongoose.Schema({
   status: {
     type: String,
     // required: true,
-    default: "new",
-    enum: ["new", "cancelledByClient", "accepted", "cancelledByBusiness", "done"]
+    default: newOrder,
+    enum: [newOrder, cancelledByClient, accepted, cancelledByBusiness, done]
   },
   bedrooms: {
     type: Number,
