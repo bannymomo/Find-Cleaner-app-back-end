@@ -6,17 +6,18 @@ const {
 } = require("../middleware/authGuard");
 const {
   addOrder,
-  getOrder,
-  getOrdersByQuery,
-  updateOrder,
+  getOrderById,
+  getAllOrders,
+  updateOrderById,
   updateOrderStatusByClient,
   updateOrderStatusByBusiness
 } = require("../controllers/order");
 
-router.get("/", getOrdersByQuery);
-router.get("/:orderId", getOrder);
-router.put("/:orderId", authGuardClient, updateOrder);
+//create order
 router.post("/", authGuardClient, addOrder);
+// client update his order
+router.put("/:orderId", authGuardClient, updateOrderById);
+//change order status:
 router.patch(
   "/:orderId/clients/:clientId",
   authGuardClient,
@@ -27,5 +28,9 @@ router.patch(
   authGuardBusiness,
   updateOrderStatusByBusiness
 );
+// business get all new orders
+router.get("/", authGuardBusiness, getAllOrders);
+// client gets his order || business get his order
+router.get("/:orderId", getOrderById);
 
 module.exports = router;

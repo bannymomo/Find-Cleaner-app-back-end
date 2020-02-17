@@ -1,6 +1,9 @@
+const mongoose = require("mongoose");
 const Client = require("../models/client");
+const Order = require("../models/order");
 const User = require("../models//user");
 const responseFormatter = require("../utils/responseFormatter");
+const checkId = require("../utils/idCheck");
 
 async function addClient(req, res) {
   const {
@@ -44,23 +47,16 @@ async function addClient(req, res) {
   return responseFormatter(res, 200, null, client);
 }
 
-async function getClient(req, res) {
+async function getClientById(req, res) {
   const { clientId } = req.params;
   const client = await Client.findById(clientId)
     .populate("orders user")
     .exec();
-  if (!client) {
-    return responseFormatter(res, 404, "client not found", null);
-  }
-  if (client.user._id.toString() !== req.user.id) {
-    //客户信息只允许客户本人获取，如果client的userID即user注册ID与token里面携带的id不相符，代表不是本人操作，不允许访问资料）
-    return responseFormatter(res, 401, "No permission to read", null);
-  }
-
+  checkId(client, req, res);
   return responseFormatter(res, 200, null, client);
 }
 
-async function updateClient(req, res) {
+async function updateClientById(req, res) {
   const { clientId } = req.params;
   const {
     firstName,
@@ -88,14 +84,8 @@ async function updateClient(req, res) {
     description
   };
   const client = await Client.findById(clientId);
-  if (!client) {
-    return responseFormatter(res, 404, "client not found", null);
-  }
+  checkId(client, req, res);
 
-  if (client.user.toString() !== req.user.id) {
-    //如果client的userID即user注册ID与token里面携带的id不相符，代表不是本人操作，不允许修改）
-    return responseFormatter(res, 401, "No permission to change", null);
-  }
   Object.keys(fields).forEach(key => {
     if (fields[key] !== undefined) {
       client[key] = fields[key];
@@ -105,8 +95,40 @@ async function updateClient(req, res) {
   return responseFormatter(res, 200, null, client);
 }
 
+async function getHisOrders(req, res) {
+  const { clientId } = req.params;
+  const { status, date } = req.query; // date = 1||-1
+  const client = await Client.findById(clientId).exec();
+  checkId(client, req, res);
+
+  const search = { status };
+
+  Object.keys(search).forEach(key => {
+    if (!search[key]) {
+      delete search[key];
+    }
+  });
+
+  if (Object.keys(search).length === 0) {
+    const ordersList = await Order.find({
+      client: mongoose.Types.ObjectId(clientId)
+    })
+      .sort({ postDate: date })
+      .exec();
+    return responseFormatter(res, 200, null, ordersList);
+  }
+  const ordersList = await Order.find({
+    client: mongoose.Types.ObjectId(clientId)
+  })
+    .find(search)
+    .sort({ postDate: date })
+    .exec();
+
+  return responseFormatter(res, 200, null, ordersList);
+}
 module.exports = {
   addClient,
-  getClient,
-  updateClient
+  getClientById,
+  updateClientById,
+  getHisOrders
 };

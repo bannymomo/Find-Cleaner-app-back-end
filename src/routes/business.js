@@ -3,14 +3,16 @@ const router = express.Router();
 const { authGuardBusiness } = require("../middleware/authGuard");
 const {
   addBusiness,
-  getBusiness,
+  getBusinessById,
   getAllBusinesses,
-  updateBusiness
+  updateBusinessById,
+  getHisOrders
 } = require("../controllers/business");
 
 router.get("/", getAllBusinesses);
-router.get("/:businessId", getBusiness);
+router.get("/:businessId", getBusinessById);
 router.post("/", authGuardBusiness, addBusiness);
-router.put("/:businessId", authGuardBusiness, updateBusiness);
+router.put("/:businessId", authGuardBusiness, updateBusinessById);
+router.get("/:businessId/orders", authGuardBusiness, getHisOrders);
 
 module.exports = router;

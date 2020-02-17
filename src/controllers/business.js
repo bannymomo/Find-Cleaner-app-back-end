@@ -1,6 +1,10 @@
+const mongoose = require("mongoose");
 const Business = require("../models/business");
+const Order = require("../models/order");
 const User = require("../models/user");
 const responseFormatter = require("../utils/responseFormatter");
+const checkId = require("../utils/idCheck");
+
 async function addBusiness(req, res) {
   const {
     businessName,
@@ -42,7 +46,7 @@ async function addBusiness(req, res) {
   return responseFormatter(res, 200, null, business);
 }
 
-async function getBusiness(req, res) {
+async function getBusinessById(req, res) {
   const { businessId } = req.params;
   const business = await Business.findById(businessId)
     .populate("orders user")
@@ -58,7 +62,7 @@ async function getAllBusinesses(req, res) {
   return responseFormatter(res, 200, null, businesses);
 }
 
-async function updateBusiness(req, res) {
+async function updateBusinessById(req, res) {
   const { businessId } = req.params;
   const {
     businessName,
@@ -86,14 +90,7 @@ async function updateBusiness(req, res) {
     description
   };
   const business = await Business.findById(businessId).exec();
-  if (!business) {
-    return responseFormatter(res, 404, "business not found", null);
-  }
-
-  if (business.user.toString() !== req.user.id) {
-    //如果business的userID即user注册ID与token里面携带的id不相符，代表不是本人操作，不允许修改）
-    return responseFormatter(res, 401, "No permission to change", null);
-  }
+  checkId(business, req, res);
 
   Object.keys(fields).forEach(key => {
     if (fields[key] !== undefined) {
@@ -105,9 +102,43 @@ async function updateBusiness(req, res) {
   return responseFormatter(res, 200, null, business);
 }
 
+async function getHisOrders(req, res) {
+  const { businessId } = req.params;
+  const { status, date } = req.query; // date = 1||-1
+  const business = await Business.findById(businessId).exec();
+  checkId(business, req, res);
+
+  const search = { status };
+
+  Object.keys(search).forEach(key => {
+    if (!search[key]) {
+      delete search[key];
+    }
+  });
+
+  if (Object.keys(search).length === 0) {
+    const ordersList = await Order.find({
+      business: mongoose.Types.ObjectId(businessId)
+    })
+      .sort({ postDate: date })
+      .exec();
+    return responseFormatter(res, 200, null, ordersList);
+  }
+
+  const ordersList = await Order.find({
+    business: mongoose.Types.ObjectId(businessId)
+  })
+    .find(search)
+    .sort({ postDate: date })
+    .exec();
+
+  return responseFormatter(res, 200, null, ordersList);
+}
+
 module.exports = {
   addBusiness,
-  getBusiness,
+  getBusinessById,
   getAllBusinesses,
-  updateBusiness
+  updateBusinessById,
+  getHisOrders
 };

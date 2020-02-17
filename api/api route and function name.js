@@ -16,19 +16,23 @@ post        localhost:4000/api/auth                function loginUser
 need username, password from req.body
 
 
-
 CLIENT      
 post        localhost:4000/api/clients             function addClient
 need firstName, lastName, gender, age, email, postcode, memberSince, lastOnline, photo, 
 description from req.body  (userId can get from req.user---decoded form token)
 
-get         localhost:4000/api/clients/:clientId   function getClient
+get         localhost:4000/api/clients/:clientId   function getClientById
 need clientId from req.params
 
-put         localhost:4000/api/clients/:clientId   function updateClient
+put         localhost:4000/api/clients/:clientId   function updateClientById
 need firstName, lastName, gender, age, email, postcode, memberSince, lastOnline, photo, 
 description from req.body
 need clientId from req.params
+
+get         localhost:4000/api/clients/:clientId/orders   function getHisOrders
+
+// client only can get their own orders and can sort by status
+need clinetId, status... from req.query
 
 
 BUSINESS
@@ -36,39 +40,36 @@ post        localhost:4000/api/businesses               function addBusiness
 need businessName, address, email, postcode, telephoneNumber, ABNNumber, memberSince, lastOnline,
 photo, description from req.body  (userId can get from req.user---decoded form token)
 
-get         localhost:4000/api/businesses/:businessId   function getBusiness
+get         localhost:4000/api/businesses/:businessId   function getBusinessById
 need businessId from req.params
 
 get         localhost:4000/api/businesses               function getAllBusinesses
 
-put         localhost:4000/api/businesses/:businessId   function updateBusiness
+put         localhost:4000/api/businesses/:businessId   function updateBusinessById
 need businessName, address, email, postcode, telephoneNumber, ABNNumber, memberSince, lastOnline,
 photo, description from req.body 
 need businessId from req.params
 
 
-ORDER
-get         localhost:4000/api/orders/:orderId      function getOrder
-need orderId from req.params
-
-post        localhost:4000/api/orders               functoin addOrder
-need postBy, location, budget, dueDate, description from req.body 
-need clientId from req.query
-
-put         localhost:4000/api/orders/:orderId      function updateOrder
-
-
-
-get         localhost:4000/api/orders/              function getOrdersByQuery
-
-
-// client only can get their own orders and can sort by status
-need clinetId, status... from req.query
-// business can get all orders that status are [NEW]
+get         localhost:4000/api/businesses/:businessId/orders   function getHisOrders
 
 // business can get their own orders and can sort by status
 need businessId, status... from req.query
 
+
+
+ORDER
+get         localhost:4000/api/orders/:orderId      function getOrderById
+need orderId from req.params
+
+get         localhost:4000/api/orders/              function getAllOrders
+//business can get all orders with status = "new"
+
+post        localhost:4000/api/orders               function addOrder
+need bedrooms, bathrooms, postDate, location, description from req.body 
+need clientId from req.query
+
+put         localhost:4000/api/orders/:orderId      function updateOrderById
 
 order have 5 status: 
 [NEW]
