@@ -45,11 +45,6 @@ const schema = new mongoose.Schema({
     trim: true
   },
 
-  // orderEvaluation: {
-  //   type: String,
-  //   default: "",
-  //   trim: true
-  // },
   client: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Client"

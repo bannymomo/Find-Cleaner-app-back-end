@@ -91,6 +91,7 @@ async function updateBusiness(req, res) {
   };
   const business = await Business.findById(businessId).exec();
   checkId(business, req, res);
+  if (res.statusCode === 401||404 ) return;
 
   Object.keys(fields).forEach(key => {
     if (fields[key] !== undefined) {
@@ -107,6 +108,7 @@ async function getHisOrders(req, res) {
   const { status, clientId, date } = req.query; // date = 1||-1
   const business = await Business.findById(businessId).exec();
   checkId(business, req, res);
+  if (res.statusCode === 401||404 ) return;
 
   const search = { status, client: mongoose.ObjectId(clientId) };
   

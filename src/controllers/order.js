@@ -29,9 +29,9 @@ async function addOrder(req, res) {
   const { clientId } = req.query;
   const client = await Client.findById(clientId).exec();
 
-  console.log(client);
-
   checkId(client, req, res);
+  if (res.statusCode === 401||404 ) return;
+
   client.orders.addToSet(order._id);
   order.client = client._id;
   await order.save();
@@ -50,9 +50,11 @@ async function getOrder(req, res) {
   if (req.user.role === "client") {
     const client = order.client;
     checkId(client,req,res);
+    if (res.statusCode === 401||404 ) return;
   } else if (req.user.role === "business") {
     const business = order.business;
-    checkId(business,req,res); 
+    checkId(business,req,res);
+    if (res.statusCode === 401||404 ) return; 
   }
 
   return responseFormatter(res, 200, null, order);
@@ -88,7 +90,7 @@ async function updateOrder(req, res) {
   }
   const client = await Client.findById(order.client);
   checkId(client, req, res);
-
+  if (res.statusCode === 401||404 ) return;
 
   Object.keys(fields).forEach(key => {
     if (fields[key] !== undefined) {
@@ -109,8 +111,9 @@ async function updateOrderStatusByClient(req, res) {
   }
 
   const client = await Client.findById(clientId).exec();
-  console.log(client);
+
   checkId(client,req,res);
+  if (res.statusCode === 401||404 ) return;
 
   if ((order.status === newOrder && status === cancelledByClient)||(order.status === accepted && status === done)) {
     order.status = status;
@@ -127,6 +130,7 @@ async function updateOrderStatusByBusiness(req, res) {
   const { status } = req.query;
   const business = await Business.findById(businessId).exec();
   checkId(business,req,res);
+  if (res.statusCode === 401||404 ) return;
   const order = await Order.findById(orderId).exec();
   if (!order) {
     return responseFormatter(res, 404, "Order not found", null);
