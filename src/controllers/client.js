@@ -47,18 +47,20 @@ async function addClient(req, res) {
   return responseFormatter(res, 200, null, client);
 }
 
-async function getClient(req, res) {
+async function getClientById(req, res) {
   const { clientId } = req.params;
   const client = await Client.findById(clientId)
     .populate("orders user")
     .exec();
   checkId(client, req, res);
-  if (res.statusCode === 401||404 ) return;
+  if (res.statusCode === 401 || res.statusCode === 404) {
+    return;
+  }
 
   return responseFormatter(res, 200, null, client);
 }
 
-async function updateClient(req, res) {
+async function updateClientById(req, res) {
   const { clientId } = req.params;
   const {
     firstName,
@@ -87,7 +89,7 @@ async function updateClient(req, res) {
   };
   const client = await Client.findById(clientId);
   checkId(client, req, res);
-  if (res.statusCode === 401||404 ) return;
+  if (res.statusCode === 401 || res.statusCode === 404) return;
 
   Object.keys(fields).forEach(key => {
     if (fields[key] !== undefined) {
@@ -100,12 +102,12 @@ async function updateClient(req, res) {
 
 async function getHisOrders(req, res) {
   const { clientId } = req.params;
-  const { status, businessId, date } = req.query; // date = 1||-1
+  const { status, date } = req.query; // date = 1||-1
   const client = await Client.findById(clientId).exec();
   checkId(client, req, res);
-  if (res.statusCode === 401||404 ) return;
+  if (res.statusCode === 401 || res.statusCode === 404) return;
 
-  const search = { status, business: mongoose.ObjectId(businessId) };
+  const search = { status };
 
   Object.keys(search).forEach(key => {
     if (!search[key]) {
@@ -114,16 +116,25 @@ async function getHisOrders(req, res) {
   });
 
   if (Object.keys(search).length === 0) {
-    const ordersList = await Order.find({ client: mongoose.Types.ObjectId(clientId) }).sort({ postDate: date }).exec();
+    const ordersList = await Order.find({
+      client: mongoose.Types.ObjectId(clientId)
+    })
+      .sort({ postDate: date })
+      .exec();
     return responseFormatter(res, 200, null, ordersList);
   }
-  const ordersList = await Order.find({ client: mongoose.Types.ObjectId(clientId) }).find(search).sort({ postDate: date }).exec();
+  const ordersList = await Order.find({
+    client: mongoose.Types.ObjectId(clientId)
+  })
+    .find(search)
+    .sort({ postDate: date })
+    .exec();
 
   return responseFormatter(res, 200, null, ordersList);
 }
 module.exports = {
   addClient,
-  getClient,
-  updateClient,
+  getClientById,
+  updateClientById,
   getHisOrders
 };

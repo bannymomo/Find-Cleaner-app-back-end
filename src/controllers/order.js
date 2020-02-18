@@ -4,21 +4,16 @@ const Business = require("../models/business");
 const responseFormatter = require("../utils/responseFormatter");
 const checkId = require("../utils/idCheck");
 
-const {  
-  newOrder, 
-  cancelledByClient, 
-  accepted, 
-  cancelledByBusiness, 
-  done } = require("../utils/variables");
+const {
+  newOrder,
+  cancelledByClient,
+  accepted,
+  cancelledByBusiness,
+  done
+} = require("../utils/variables");
 
 async function addOrder(req, res) {
-  const {
-    bedrooms,
-    bathrooms,
-    postDate,
-    location,
-    description
-  } = req.body;
+  const { bedrooms, bathrooms, postDate, location, description } = req.body;
   const order = new Order({
     bedrooms,
     bathrooms,
@@ -30,18 +25,22 @@ async function addOrder(req, res) {
   const client = await Client.findById(clientId).exec();
 
   checkId(client, req, res);
-  if (res.statusCode === 401||404 ) return;
+  if (res.statusCode === 401 || res.statusCode === 404) {
+    return;
+  }
 
   client.orders.addToSet(order._id);
   order.client = client._id;
   await order.save();
+  client.orders.addToSet(order._id);
   await client.save();
   return responseFormatter(res, 200, null, order);
 }
 
-async function getOrder(req, res) {
+async function getOrderById(req, res) {
   const { orderId } = req.params;
-  const order = await Order.findById(orderId).sort({postDate: 1})
+  const order = await Order.findById(orderId)
+    .sort({ postDate: 1 })
     .populate("business client")
     .exec();
   if (!order) {
@@ -49,33 +48,28 @@ async function getOrder(req, res) {
   }
   if (req.user.role === "client") {
     const client = order.client;
-    checkId(client,req,res);
-    if (res.statusCode === 401||404 ) return;
+    checkId(client, req, res);
+    if (res.statusCode === 401 || res.statusCode === 404) return;
   } else if (req.user.role === "business") {
     const business = order.business;
-    checkId(business,req,res);
-    if (res.statusCode === 401||404 ) return; 
+    checkId(business, req, res);
+    if (res.statusCode === 401 || res.statusCode === 404) return;
   }
 
   return responseFormatter(res, 200, null, order);
 }
 
 async function getAllOrders(req, res) {
-  const orders = await Order.find().sort({postDate: -1}).exec();
-  
+  const orders = await Order.find()
+    .sort({ postDate: -1 })
+    .exec();
   const ordersList = orders.filter(order => order.status === newOrder);
   return responseFormatter(res, 200, null, ordersList);
 }
 
-async function updateOrder(req, res) {
+async function updateOrderById(req, res) {
   const { orderId } = req.params;
-  const {
-    bedrooms,
-    bathrooms,
-    postDate,
-    location,
-    description
-  } = req.body;
+  const { bedrooms, bathrooms, postDate, location, description } = req.body;
 
   const fields = {
     bedrooms,
@@ -90,7 +84,7 @@ async function updateOrder(req, res) {
   }
   const client = await Client.findById(order.client);
   checkId(client, req, res);
-  if (res.statusCode === 401||404 ) return;
+  if (res.statusCode === 401 || res.statusCode === 404) return;
 
   Object.keys(fields).forEach(key => {
     if (fields[key] !== undefined) {
@@ -104,34 +98,41 @@ async function updateOrder(req, res) {
 async function updateOrderStatusByClient(req, res) {
   const { orderId, clientId } = req.params;
   const { status } = req.query;
-  const order = await Order.findById(orderId).exec();
-
+  const order = await Order.findById(orderId)
+    .populate("client")
+    .exec();
   if (!order) {
     return responseFormatter(res, 404, "Order not found", null);
   }
 
   const client = await Client.findById(clientId).exec();
+  checkId(client, req, res);
+  if (res.statusCode === 401 || res.statusCode === 404) return;
+  if (order.client.user.toString() !== req.user.id) {
+    return responseFormatter(res, 401, "Access denied", null);
+  }
 
-  checkId(client,req,res);
-  if (res.statusCode === 401||404 ) return;
-
-  if ((order.status === newOrder && status === cancelledByClient)||(order.status === accepted && status === done)) {
+  if (
+    (order.status === newOrder && status === cancelledByClient) ||
+    (order.status === accepted && status === done)
+  ) {
     order.status = status;
     await order.save();
     return responseFormatter(res, 200, null, order);
   } else {
     return responseFormatter(res, 400, "Cannot change order status", null);
   }
-
 }
 
 async function updateOrderStatusByBusiness(req, res) {
   const { orderId, businessId } = req.params;
   const { status } = req.query;
   const business = await Business.findById(businessId).exec();
-  checkId(business,req,res);
-  if (res.statusCode === 401||404 ) return;
-  const order = await Order.findById(orderId).exec();
+  checkId(business, req, res);
+  if (res.statusCode === 401 || res.statusCode === 404) return;
+  const order = await Order.findById(orderId)
+    .populate("business")
+    .exec();
   if (!order) {
     return responseFormatter(res, 404, "Order not found", null);
   }
@@ -143,21 +144,23 @@ async function updateOrderStatusByBusiness(req, res) {
     await order.save();
     await business.save();
     return responseFormatter(res, 200, null, order);
-  } else if ( order.status === accepted && status === cancelledByBusiness) {
+  } else if (order.status === accepted && status === cancelledByBusiness) {
+    if (order.business.user.toString() !== req.user.id) {
+      return responseFormatter(res, 401, "Access denied", null);
+    }
     order.status = status;
     await order.save();
     return responseFormatter(res, 200, null, order);
   } else {
     return responseFormatter(res, 400, "Cannot change order status", null);
   }
-
 }
 
 module.exports = {
   addOrder,
-  getOrder,
+  getOrderById,
   getAllOrders,
-  updateOrder,
+  updateOrderById,
   updateOrderStatusByClient,
   updateOrderStatusByBusiness
 };

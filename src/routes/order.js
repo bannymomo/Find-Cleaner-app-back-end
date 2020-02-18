@@ -6,18 +6,26 @@ const {
 } = require("../middleware/authGuard");
 const {
   addOrder,
-  getOrder,
+  getOrderById,
   getAllOrders,
-  updateOrder,
+  updateOrderById,
   updateOrderStatusByClient,
   updateOrderStatusByBusiness
 } = require("../controllers/order");
 
-router.post("/", addOrder);
-router.put("/:orderId", authGuardClient, updateOrder);
-router.patch("/:orderId/clients/:clientId", authGuardClient, updateOrderStatusByClient);
-router.patch("/:orderId/businesses/:businessId", authGuardBusiness, updateOrderStatusByBusiness);
+router.post("/", authGuardClient, addOrder);
+router.put("/:orderId", authGuardClient, updateOrderById);
+router.patch(
+  "/:orderId/clients/:clientId",
+  authGuardClient,
+  updateOrderStatusByClient
+);
+router.patch(
+  "/:orderId/businesses/:businessId",
+  authGuardBusiness,
+  updateOrderStatusByBusiness
+);
 router.get("/", authGuardBusiness, getAllOrders);
-router.get("/:orderId", getOrder);
+router.get("/:orderId", getOrderById);
 
 module.exports = router;
