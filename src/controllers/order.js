@@ -17,7 +17,13 @@ async function addOrder(req, res) {
   const order = new Order({
     bedrooms,
     bathrooms,
+    endOfLease,
+    oven,
+    windows,
+    cabinets,
+    carpet,
     postDate,
+    dueDate,
     location,
     description
   });
@@ -74,7 +80,13 @@ async function updateOrderById(req, res) {
   const fields = {
     bedrooms,
     bathrooms,
+    endOfLease,
+    oven,
+    windows,
+    cabinets,
+    carpet,
     postDate,
+    dueDate,
     location,
     description
   };

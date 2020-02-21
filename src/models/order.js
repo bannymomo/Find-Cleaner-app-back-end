@@ -25,11 +25,34 @@ const schema = new mongoose.Schema(
       required: true,
       enum: [1, 2, 3]
     },
+    endOfLease: {
+      type: Boolean,
+      required: true
+    },
+    oven: {
+      type: Boolean,
+      required: true
+    },
+    windows: {
+      type: Boolean,
+      required: true
+    },
+    cabinets: {
+      type: Boolean,
+      required: true
+    },
+    carpet: {
+      type: Boolean,
+      required: true
+    },
     postDate: {
       type: Date,
       default: Date.now
     },
-
+    dueDate: {
+      type: Date,
+      required: true
+    },
     location: {
       type: String,
       required: true,
