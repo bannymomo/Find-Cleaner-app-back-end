@@ -76,7 +76,7 @@ const schema = new mongoose.Schema(
 );
 
 schema.virtual("price").get(function() {
-  return this.bedrooms * 25 + this.bathrooms * 35;
+  return this.bedrooms*22 + this.bathrooms*28 + this.endOfLease*135 + oven*5 + window*68 + cabinets*36 + carpet*18;
 });
 
 const model = mongoose.model("Order", schema);
