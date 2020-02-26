@@ -4,6 +4,8 @@ const Business = require("../models/business");
 const responseFormatter = require("../utils/responseFormatter");
 const checkId = require("../utils/idCheck");
 
+const { convertQuery } = require("../utils/helper");
+
 const {
   newOrder,
   cancelledByClient,
@@ -13,7 +15,18 @@ const {
 } = require("../utils/variables");
 
 async function addOrder(req, res) {
-  const { bedrooms, bathrooms, postDate, location, description } = req.body;
+  const { 
+    bedrooms,
+    bathrooms,
+    endOfLease,
+    oven,
+    windows,
+    cabinets,
+    carpet,
+    postDate,
+    dueDate,
+    location,
+    description } = req.body;
   const order = new Order({
     bedrooms,
     bathrooms,
@@ -66,10 +79,13 @@ async function getOrderById(req, res) {
 }
 
 async function getAllOrders(req, res) {
-  const orders = await Order.find()
-    .sort({ postDate: -1 })
-    .exec();
-  const ordersList = orders.filter(order => order.status === newOrder);
+  //sort=postDate -postDate
+  const total = await Order.find({ status: newOrder }).countDocuments();
+  const { pagination, sort } = convertQuery(req.query, total);
+  const { page, pageSize } = pagination;
+  
+  const ordersList = await Order.find().sort(sort).skip((page-1) * pageSize).limit(pageSize).exec();
+
   return responseFormatter(res, 200, null, ordersList);
 }
 

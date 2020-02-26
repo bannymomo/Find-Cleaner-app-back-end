@@ -11,7 +11,7 @@ const schema = new mongoose.Schema(
   {
     status: {
       type: String,
-      required: true,
+      // required: true,
       default: newOrder,
       enum: [newOrder, cancelledByClient, accepted, cancelledByBusiness, done]
     },
@@ -27,23 +27,23 @@ const schema = new mongoose.Schema(
     },
     endOfLease: {
       type: Boolean,
-      required: true
+      default: 0,
     },
     oven: {
       type: Boolean,
-      required: true
+      default: 0,
     },
     windows: {
       type: Boolean,
-      required: true
+      default: 0,
     },
     cabinets: {
       type: Boolean,
-      required: true
+      default: 0,
     },
     carpet: {
       type: Boolean,
-      required: true
+      default: 0,
     },
     postDate: {
       type: Date,
@@ -76,7 +76,7 @@ const schema = new mongoose.Schema(
 );
 
 schema.virtual("price").get(function() {
-  return this.bedrooms*22 + this.bathrooms*28 + this.endOfLease*135 + oven*5 + window*68 + cabinets*36 + carpet*18;
+  return this.bedrooms*22 + this.bathrooms*28 + this.endOfLease*135 + this.oven*5 + this.windows*68 + this.cabinets*36 + this.carpet*18;
 });
 
 const model = mongoose.model("Order", schema);
