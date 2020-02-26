@@ -5,6 +5,8 @@ const User = require("../models//user");
 const responseFormatter = require("../utils/responseFormatter");
 const checkId = require("../utils/idCheck");
 
+const { convertQuery } = require("../utils/helper");
+
 async function addClient(req, res) {
   const {
     firstName,
@@ -102,11 +104,11 @@ async function updateClientById(req, res) {
 
 async function getHisOrders(req, res) {
   const { clientId } = req.params;
-  const { status, date } = req.query; // date = 1||-1
   const client = await Client.findById(clientId).exec();
   checkId(client, req, res);
   if (res.statusCode === 401 || res.statusCode === 404) return;
 
+  const { status } = req.query;
   const search = { status };
 
   Object.keys(search).forEach(key => {
@@ -115,20 +117,12 @@ async function getHisOrders(req, res) {
     }
   });
 
-  if (Object.keys(search).length === 0) {
-    const ordersList = await Order.find({
-      client: mongoose.Types.ObjectId(clientId)
-    })
-      .sort({ postDate: date })
-      .exec();
-    return responseFormatter(res, 200, null, ordersList);
-  }
-  const ordersList = await Order.find({
-    client: mongoose.Types.ObjectId(clientId)
-  })
-    .find(search)
-    .sort({ postDate: date })
-    .exec();
+  const total = await Order.find({ client: mongoose.Types.ObjectId(clientId) }).find(search).countDocuments().exec();
+
+  const { pagination, sort } = convertQuery(req.query, total);
+  const { page, pageSize } = pagination;
+
+  const ordersList = await Order.find({ client: mongoose.Types.ObjectId(clientId) }).find(search).sort(sort).skip((page-1) * pageSize).limit(pageSize);
 
   return responseFormatter(res, 200, null, ordersList);
 }

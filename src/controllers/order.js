@@ -80,18 +80,29 @@ async function getOrderById(req, res) {
 
 async function getAllOrders(req, res) {
   //sort=postDate -postDate
-  const total = await Order.find({ status: newOrder }).countDocuments();
+  const total = await Order.find({ status: newOrder }).countDocuments().exec();
   const { pagination, sort } = convertQuery(req.query, total);
   const { page, pageSize } = pagination;
   
-  const ordersList = await Order.find().sort(sort).skip((page-1) * pageSize).limit(pageSize).exec();
+  const ordersList = await Order.find({ status: newOrder }).sort(sort).skip((page-1) * pageSize).limit(pageSize).exec();
 
   return responseFormatter(res, 200, null, ordersList);
 }
 
 async function updateOrderById(req, res) {
   const { orderId } = req.params;
-  const { bedrooms, bathrooms, postDate, location, description } = req.body;
+  const {     
+    bedrooms,
+    bathrooms,
+    endOfLease,
+    oven,
+    windows,
+    cabinets,
+    carpet,
+    postDate,
+    dueDate,
+    location,
+    description } = req.body;
 
   const fields = {
     bedrooms,

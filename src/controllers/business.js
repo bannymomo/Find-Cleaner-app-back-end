@@ -5,6 +5,8 @@ const User = require("../models/user");
 const responseFormatter = require("../utils/responseFormatter");
 const checkId = require("../utils/idCheck");
 
+const { convertQuery } = require("../utils/helper");
+
 async function addBusiness(req, res) {
   const {
     businessName,
@@ -105,11 +107,11 @@ async function updateBusinessById(req, res) {
 
 async function getHisOrders(req, res) {
   const { businessId } = req.params;
-  const { status, date } = req.query; // date = 1||-1
   const business = await Business.findById(businessId).exec();
   checkId(business, req, res);
   if (res.statusCode === 401 || res.statusCode === 404) return;
 
+  const { status } = req.query; 
   const search = { status };
 
   Object.keys(search).forEach(key => {
@@ -118,21 +120,12 @@ async function getHisOrders(req, res) {
     }
   });
 
-  if (Object.keys(search).length === 0) {
-    const ordersList = await Order.find({
-      business: mongoose.Types.ObjectId(businessId)
-    })
-      .sort({ postDate: date })
-      .exec();
-    return responseFormatter(res, 200, null, ordersList);
-  }
+  const total = await Order.find({ business: mongoose.Types.ObjectId(businessId) }).find(search).countDocuments().exec();
 
-  const ordersList = await Order.find({
-    business: mongoose.Types.ObjectId(businessId)
-  })
-    .find(search)
-    .sort({ postDate: date })
-    .exec();
+  const { pagination, sort } = convertQuery(req.query, total);
+  const { page, pageSize } = pagination;
+
+  const ordersList = await Order.find({ business: mongoose.Types.ObjectId(businessId) }).find(search).sort(sort).skip((page-1) * pageSize).limit(pageSize);
 
   return responseFormatter(res, 200, null, ordersList);
 }
