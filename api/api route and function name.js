@@ -10,6 +10,9 @@ need userId from req.params,
 need oldPassword, newPassword, doublecheckPassword from req.body
 
 
+get         localhost:4000/api/users/me            function getSelf
+
+
 
 AUTH
 post        localhost:4000/api/auth                function loginUser
