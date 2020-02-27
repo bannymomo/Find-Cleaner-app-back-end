@@ -20,7 +20,9 @@ async function loginUser(req, res) {
     userId: existingUser._id,
     userName: existingUser.username,
     userRole: existingUser.role,
-    token
+    token,
+    clientId: existingUser.client,
+    businessId: existingUser.business
   });
 }
 
