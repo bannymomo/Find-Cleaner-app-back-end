@@ -70,6 +70,9 @@ async function getOrderById(req, res) {
     checkId(client, req, res);
     if (res.statusCode === 401 || res.statusCode === 404) return;
   } else if (req.user.role === "business") {
+    if (order.status === newOrder) {
+      return responseFormatter(res, 200, null, order);
+    }
     const business = order.business;
     checkId(business, req, res);
     if (res.statusCode === 401 || res.statusCode === 404) return;
