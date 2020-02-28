@@ -60,4 +60,8 @@ async function updateUser(req, res) {
   });
 }
 
-module.exports = { addUser, updateUser };
+async function getSelf(req, res) {
+  const user = await User.findById(req.user.id);
+  return responseFormatter(res, 200, null, user);
+}
+module.exports = { addUser, updateUser, getSelf };
