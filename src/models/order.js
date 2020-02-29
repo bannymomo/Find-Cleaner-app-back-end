@@ -51,6 +51,7 @@ const schema = new mongoose.Schema(
     },
     dueDate: {
       type: Date,
+      default: Date(Date.now() + 604800000),
       required: true
     },
     location: {
