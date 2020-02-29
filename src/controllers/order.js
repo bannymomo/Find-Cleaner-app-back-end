@@ -89,7 +89,7 @@ async function getAllOrders(req, res) {
   
   const ordersList = await Order.find({ status: newOrder }).sort(sort).skip((page-1) * pageSize).limit(pageSize).exec();
 
-  return responseFormatter(res, 200, null, {ordersList, pagination});
+  return responseFormatter(res, 200, null, {data: ordersList, pagination});
 }
 
 async function updateOrderById(req, res) {
