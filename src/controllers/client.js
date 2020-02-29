@@ -124,7 +124,7 @@ async function getHisOrders(req, res) {
 
   const ordersList = await Order.find({ client: mongoose.Types.ObjectId(clientId) }).find(search).sort(sort).skip((page-1) * pageSize).limit(pageSize);
 
-  return responseFormatter(res, 200, null, {data: ordersList, pagination});
+  return responseFormatter(res, 200, null, {ordersList, pagination});
 }
 module.exports = {
   addClient,
