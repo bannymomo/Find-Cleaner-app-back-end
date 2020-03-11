@@ -64,4 +64,13 @@ async function getSelf(req, res) {
   const user = await User.findById(req.user.id);
   return responseFormatter(res, 200, null, user);
 }
-module.exports = { addUser, updateUser, getSelf };
+
+async function checkUserName(req, res) {
+  const { username } = req.params;
+  const existingUser = await User.findOne({ username }).exec();
+  if (existingUser) {
+    return responseFormatter(res, 400, "User already exist", null);
+  }
+  return responseFormatter(res, 200, null, username);
+}
+module.exports = { addUser, updateUser, getSelf, checkUserName };

@@ -7,11 +7,11 @@ const checkId = require("../utils/idCheck");
 const { convertQuery } = require("../utils/helper");
 
 const {
-  newOrder,
-  cancelledByClient,
-  accepted,
-  cancelledByBusiness,
-  done
+  NEW_ORDER,
+  CANCELLED_BY_CLIENT,
+  ACCEPTED,
+  CANCELLED_BY_BUSINESS,
+  DONE
 } = require("../utils/variables");
 
 async function addOrder(req, res) {
@@ -70,7 +70,7 @@ async function getOrderById(req, res) {
     checkId(client, req, res);
     if (res.statusCode === 401 || res.statusCode === 404) return;
   } else if (req.user.role === "business") {
-    if (order.status === newOrder) {
+    if (order.status === NEW_ORDER) {
       return responseFormatter(res, 200, null, order);
     }
     const business = order.business;
@@ -82,12 +82,12 @@ async function getOrderById(req, res) {
 }
 
 async function getAllOrders(req, res) {
-  //sort=postDate -postDate
-  const total = await Order.find({ status: newOrder }).countDocuments().exec();
+  //sort=postDate -postDatenew
+  const total = await Order.find({ status: NEW_ORDER }).countDocuments().exec();
   const { pagination, sort } = convertQuery(req.query, total);
   const { page, pageSize } = pagination;
   
-  const ordersList = await Order.find({ status: newOrder }).sort(sort).skip((page-1) * pageSize).limit(pageSize).exec();
+  const ordersList = await Order.find({ status: NEW_ORDER }).sort(sort).skip((page-1) * pageSize).limit(pageSize).exec();
 
   return responseFormatter(res, 200, null, {data: ordersList, pagination});
 }
@@ -155,8 +155,8 @@ async function updateOrderStatusByClient(req, res) {
   }
 
   if (
-    (order.status === newOrder && status === cancelledByClient) ||
-    (order.status === accepted && status === done)
+    (order.status === NEW_ORDER && status === CANCELLED_BY_CLIENT) ||
+    (order.status === ACCEPTED && status === DONE)
   ) {
     order.status = status;
     await order.save();
@@ -179,14 +179,14 @@ async function updateOrderStatusByBusiness(req, res) {
     return responseFormatter(res, 404, "Order not found", null);
   }
 
-  if (order.status === newOrder && status === accepted) {
+  if (order.status === NEW_ORDER && status === ACCEPTED) {
     order.status = status;
     business.orders.addToSet(orderId);
     order.business = businessId;
     await order.save();
     await business.save();
     return responseFormatter(res, 200, null, order);
-  } else if (order.status === accepted && status === cancelledByBusiness) {
+  } else if (order.status === ACCEPTED && status === CANCELLED_BY_BUSINESS) {
     if (order.business.user.toString() !== req.user.id) {
       return responseFormatter(res, 401, "Access denied", null);
     }

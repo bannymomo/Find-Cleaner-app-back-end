@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 const {
-  newOrder,
-  cancelledByClient,
-  accepted,
-  cancelledByBusiness,
-  done
+  NEW_ORDER,
+  CANCELLED_BY_CLIENT,
+  ACCEPTED,
+  CANCELLED_BY_BUSINESS,
+  DONE
 } = require("../utils/variables");
 
 const schema = new mongoose.Schema(
@@ -12,18 +12,24 @@ const schema = new mongoose.Schema(
     status: {
       type: String,
       // required: true,
-      default: newOrder,
-      enum: [newOrder, cancelledByClient, accepted, cancelledByBusiness, done]
+      default: NEW_ORDER,
+      enum: [  
+        NEW_ORDER,
+        CANCELLED_BY_CLIENT,
+        ACCEPTED,
+        CANCELLED_BY_BUSINESS,
+        DONE
+      ]
     },
     bedrooms: {
       type: Number,
       required: true,
-      enum: [1, 2, 3, 4, 5]
+      enum: [0, 1, 2, 3, 4, 5]
     },
     bathrooms: {
       type: Number,
       required: true,
-      enum: [1, 2, 3]
+      enum: [0, 1, 2, 3]
     },
     endOfLease: {
       type: Boolean,
@@ -77,7 +83,7 @@ const schema = new mongoose.Schema(
 );
 
 schema.virtual("price").get(function() {
-  return this.bedrooms*22 + this.bathrooms*28 + this.endOfLease*135 + this.oven*5 + this.windows*68 + this.cabinets*36 + this.carpet*18;
+  return this.bedrooms*22 + this.bathrooms*28 + this.endOfLease*135 + this.oven*5 + this.windows*68 + this.cabinets*36 + this.carpet*58;
 });
 
 const model = mongoose.model("Order", schema);
