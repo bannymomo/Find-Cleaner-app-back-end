@@ -11,7 +11,9 @@ const {
   CANCELLED_BY_CLIENT,
   ACCEPTED,
   CANCELLED_BY_BUSINESS,
-  DONE
+  DONE,
+  CLIENT_ROLE,
+  BUSINESS_ROLE
 } = require("../utils/variables");
 
 async function addOrder(req, res) {
@@ -65,11 +67,11 @@ async function getOrderById(req, res) {
   if (!order) {
     return responseFormatter(res, 404, "Order not found", null);
   }
-  if (req.user.role === "client") {
+  if (req.user.role === CLIENT_ROLE) {
     const client = order.client;
     checkId(client, req, res);
     if (res.statusCode === 401 || res.statusCode === 404) return;
-  } else if (req.user.role === "business") {
+  } else if (req.user.role === BUSINESS_ROLE) {
     if (order.status === NEW_ORDER) {
       return responseFormatter(res, 200, null, order);
     }
