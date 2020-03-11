@@ -46,7 +46,7 @@ const schema = new mongoose.Schema({
   photo: {
     type: String, //url
     default:
-      "https://library.kissclipart.com/20180929/vpq/kissclipart-icon-clipart-computer-icons-business-company-6438dbeb59c64e42.jpg",
+      "https://cdn.dribbble.com/users/374864/screenshots/1812257/business-avatar.png",
     trim: true
   },
   description: {
