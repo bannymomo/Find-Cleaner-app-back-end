@@ -84,7 +84,7 @@ const schema = new mongoose.Schema(
     },
     comment: {
       type: String,
-      default: "good"
+      default: ""
     }
   },
   { toJSON: { virtuals: true }, id: false }
