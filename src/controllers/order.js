@@ -17,7 +17,7 @@ const {
 } = require("../utils/variables");
 
 async function addOrder(req, res) {
-  const { 
+  const {
     bedrooms,
     bathrooms,
     endOfLease,
@@ -28,7 +28,8 @@ async function addOrder(req, res) {
     postDate,
     dueDate,
     location,
-    description } = req.body;
+    description
+  } = req.body;
   const order = new Order({
     bedrooms,
     bathrooms,
@@ -85,18 +86,24 @@ async function getOrderById(req, res) {
 
 async function getAllOrders(req, res) {
   //sort=postDate -postDatenew
-  const total = await Order.find({ status: NEW_ORDER }).countDocuments().exec();
+  const total = await Order.find({ status: NEW_ORDER })
+    .countDocuments()
+    .exec();
   const { pagination, sort } = convertQuery(req.query, total);
   const { page, pageSize } = pagination;
-  
-  const ordersList = await Order.find({ status: NEW_ORDER }).sort(sort).skip((page-1) * pageSize).limit(pageSize).exec();
 
-  return responseFormatter(res, 200, null, {data: ordersList, pagination});
+  const ordersList = await Order.find({ status: NEW_ORDER })
+    .sort(sort)
+    .skip((page - 1) * pageSize)
+    .limit(pageSize)
+    .exec();
+
+  return responseFormatter(res, 200, null, { data: ordersList, pagination });
 }
 
 async function updateOrderById(req, res) {
   const { orderId } = req.params;
-  const {     
+  const {
     bedrooms,
     bathrooms,
     endOfLease,
@@ -107,7 +114,8 @@ async function updateOrderById(req, res) {
     postDate,
     dueDate,
     location,
-    description } = req.body;
+    description
+  } = req.body;
 
   const fields = {
     bedrooms,
@@ -200,11 +208,32 @@ async function updateOrderStatusByBusiness(req, res) {
   }
 }
 
+async function addOrderComment(req, res) {
+  const { orderId } = req.params;
+  const { comment } = req.body;
+  const order = await Order.findById(orderId)
+    .populate("client")
+    .exec();
+  if (!order) {
+    return responseFormatter(res, 404, "Order not found", null);
+  }
+  if (order.status !== DONE) {
+    return responseFormatter(res, 400, "Order not finish yet", null);
+  }
+  const client = order.client;
+  checkId(client, req, res);
+  if (res.statusCode === 401 || res.statusCode === 404) return;
+  order.comment = comment;
+  await order.save();
+  return responseFormatter(res, 200, null, order);
+}
+
 module.exports = {
   addOrder,
   getOrderById,
   getAllOrders,
   updateOrderById,
   updateOrderStatusByClient,
-  updateOrderStatusByBusiness
+  updateOrderStatusByBusiness,
+  addOrderComment
 };

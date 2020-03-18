@@ -13,7 +13,7 @@ const schema = new mongoose.Schema(
       type: String,
       // required: true,
       default: NEW_ORDER,
-      enum: [  
+      enum: [
         NEW_ORDER,
         CANCELLED_BY_CLIENT,
         ACCEPTED,
@@ -33,23 +33,23 @@ const schema = new mongoose.Schema(
     },
     endOfLease: {
       type: Boolean,
-      default: 0,
+      default: 0
     },
     oven: {
       type: Boolean,
-      default: 0,
+      default: 0
     },
     windows: {
       type: Boolean,
-      default: 0,
+      default: 0
     },
     cabinets: {
       type: Boolean,
-      default: 0,
+      default: 0
     },
     carpet: {
       type: Boolean,
-      default: 0,
+      default: 0
     },
     postDate: {
       type: Date,
@@ -77,13 +77,25 @@ const schema = new mongoose.Schema(
       ref: "Client"
     },
 
-    business: { type: mongoose.Schema.Types.ObjectId, ref: "Business" }
+    business: { type: mongoose.Schema.Types.ObjectId, ref: "Business" },
+    comment: {
+      type: Object,
+      default: {}
+    }
   },
   { toJSON: { virtuals: true }, id: false }
 );
 
 schema.virtual("price").get(function() {
-  return this.bedrooms*22 + this.bathrooms*28 + this.endOfLease*135 + this.oven*5 + this.windows*68 + this.cabinets*36 + this.carpet*58;
+  return (
+    this.bedrooms * 22 +
+    this.bathrooms * 28 +
+    this.endOfLease * 135 +
+    this.oven * 5 +
+    this.windows * 68 +
+    this.cabinets * 36 +
+    this.carpet * 58
+  );
 });
 
 const model = mongoose.model("Order", schema);

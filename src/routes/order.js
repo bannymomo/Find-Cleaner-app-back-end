@@ -10,10 +10,14 @@ const {
   getAllOrders,
   updateOrderById,
   updateOrderStatusByClient,
-  updateOrderStatusByBusiness
+  updateOrderStatusByBusiness,
+  addOrderComment
 } = require("../controllers/order");
 
 router.post("/", authGuardClient, addOrder);
+
+router.post("/:orderId/comments", authGuardClient, addOrderComment);
+
 router.put("/:orderId", authGuardClient, updateOrderById);
 router.patch(
   "/:orderId/clients/:clientId",
