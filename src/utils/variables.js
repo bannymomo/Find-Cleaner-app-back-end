@@ -7,7 +7,6 @@ const DONE = "done";
 const CLIENT_ROLE = "client";
 const BUSINESS_ROLE = "business";
 
-
 module.exports = {
     NEW_ORDER,
     CANCELLED_BY_CLIENT,
@@ -17,4 +16,3 @@ module.exports = {
     CLIENT_ROLE,
     BUSINESS_ROLE
 };
-  

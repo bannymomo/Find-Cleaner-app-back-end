@@ -11,7 +11,7 @@ const connectToDB = require("./utils/db");
 const app = express();
 const PORT = process.env.PORT || 3000;
 const morganLog =
-  process.env.NODE_ENV === "production" ? morgan("common") : morgan("dev");
+    process.env.NODE_ENV === "production" ? morgan("common") : morgan("dev");
 
 app.use(helmet());
 app.use(morganLog);
@@ -22,14 +22,14 @@ app.use("/api", routes);
 app.use(errorHandler);
 
 connectToDB()
-  .then(() => {
-    console.log("DB connected");
-    app.listen(PORT, () => {
-      console.log(`Server listening on port ${PORT}`);
+    .then(() => {
+        console.log("DB connected");
+        app.listen(PORT, () => {
+            console.log(`Server listening on port ${PORT}`);
+        });
+    })
+    .catch(error => {
+        console.log("DB connection failed");
+        console.error(error.message);
+        process.exit(1);
     });
-  })
-  .catch(error => {
-    console.log("DB connection failed");
-    console.error(error.message);
-    process.exit(1);
-  });
