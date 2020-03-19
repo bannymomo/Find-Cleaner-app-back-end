@@ -16,7 +16,6 @@ const schema = new mongoose.Schema(
     },
     gender: {
       type: String,
-      // required: true,
       trim: true
     },
     age: {
@@ -34,12 +33,11 @@ const schema = new mongoose.Schema(
           !Joi.string()
             .email()
             .validate(email).error,
-        msg: "Invalide email format"
+        msg: "Invalid email format"
       }
     },
     postcode: {
       type: Number,
-      // required: true
     },
     memberSince: {
       type: Date,
@@ -50,9 +48,14 @@ const schema = new mongoose.Schema(
       default: Date.now
     },
     photo: {
-      type: String, //url
+      type: String, 
       default: "http://www.pngmart.com/files/10/User-Account-PNG-Clipart.png",
-      trim: true
+      // validate: {
+      //   validator: url => 
+      //     !Joi.validate(url, Joi.string().uri())
+      //     .error,
+      //   msg: "Invalid url fomat"
+      // }
     },
     description: {
       type: String,

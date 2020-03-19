@@ -44,10 +44,9 @@ const schema = new mongoose.Schema({
     default: Date.now
   },
   photo: {
-    type: String, //url
+    type: String, 
     default:
       "https://cdn.dribbble.com/users/374864/screenshots/1812257/business-avatar.png",
-    trim: true
   },
   description: {
     type: String,

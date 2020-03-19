@@ -6,6 +6,7 @@ const responseFormatter = require("../utils/responseFormatter");
 const checkId = require("../utils/idCheck");
 
 const { convertQuery } = require("../utils/helper");
+const { deleteImage } =require("../utils/upload");
 
 async function addClient(req, res) {
   const {
@@ -89,7 +90,7 @@ async function updateClientById(req, res) {
     photo,
     description
   };
-  const client = await Client.findById(clientId);
+  const client = await Client.findById(clientId).exec();
   checkId(client, req, res);
   if (res.statusCode === 401 || res.statusCode === 404) return;
 
@@ -126,9 +127,33 @@ async function getHisOrders(req, res) {
 
   return responseFormatter(res, 200, null, {data: ordersList, pagination});
 }
+
+async function updateAvatar(req, res) {
+  const { clientId } = req.params;
+  if (!req.file) {
+    return responseFormatter(res, 400, "Image missing");
+  }
+  const client = await Client.findById(clientId).exec();
+
+  if (!client) {
+    await deleteImage(req.file.key);
+    return responseFormatter(res, 404, "Client not found")
+  }
+  if (!client.user || client.user._id.toString() !== req.user.id) {
+    await deleteImage(req.file.key);
+    return responseFormatter(res, 401, "Access denied")
+  }
+
+  client.photo = req.file.location;
+  await client.save();
+
+  return responseFormatter(res, 200, null, client.photo);
+}
+
 module.exports = {
   addClient,
   getClientById,
   updateClientById,
-  getHisOrders
+  getHisOrders,
+  updateAvatar
 };

@@ -6,6 +6,7 @@ const responseFormatter = require("../utils/responseFormatter");
 const checkId = require("../utils/idCheck");
 
 const { convertQuery } = require("../utils/helper");
+const { deleteImage } =require("../utils/upload");
 
 async function addBusiness(req, res) {
   const {
@@ -130,10 +131,33 @@ async function getHisOrders(req, res) {
   return responseFormatter(res, 200, null, {data: ordersList, pagination});
 }
 
+async function updateAvatar(req, res) {
+  const { businessId } = req.params;
+  if (!req.file) {
+    return responseFormatter(res, 400, "Image missing");
+  }
+  const business = await Business.findById(businessId).exec();
+
+  if (!business) {
+    await deleteImage(req.file.key);
+    return responseFormatter(res, 404, "Business not found")
+  }
+  if (!business.user || business.user._id.toString() !== req.user.id) {
+    await deleteImage(req.file.key);
+    return responseFormatter(res, 401, "Access denied")
+  }
+
+  business.photo = req.file.location;
+  await business.save();
+
+  return responseFormatter(res, 200, null, business.photo);
+}
+
 module.exports = {
   addBusiness,
   getBusinessById,
   getAllBusinesses,
   updateBusinessById,
-  getHisOrders
+  getHisOrders,
+  updateAvatar
 };
