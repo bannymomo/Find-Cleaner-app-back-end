@@ -223,7 +223,8 @@ async function addOrderComment(req, res) {
     const client = order.client;
     checkId(client, req, res);
     if (res.statusCode === 401 || res.statusCode === 404) return;
-    order.comment = comment;
+    order.rate = comment.rate;
+    order.comment = comment.comment;
     await order.save();
     return responseFormatter(res, 200, null, order);
 }

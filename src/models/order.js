@@ -78,9 +78,13 @@ const schema = new mongoose.Schema(
         },
 
         business: { type: mongoose.Schema.Types.ObjectId, ref: "Business" },
+        rate: {
+            type: Number,
+            default: 2
+        },
         comment: {
-            type: Object,
-            default: {}
+            type: String,
+            default: ""
         }
     },
     { toJSON: { virtuals: true }, id: false }
