@@ -134,7 +134,8 @@ async function getHisOrders(req, res) {
         .find(search)
         .sort(sort)
         .skip((page - 1) * pageSize)
-        .limit(pageSize);
+        .limit(pageSize)
+        .populate("client");
 
     return responseFormatter(res, 200, null, { data: ordersList, pagination });
 }

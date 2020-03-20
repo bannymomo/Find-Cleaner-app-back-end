@@ -88,7 +88,6 @@ async function getAllOrders(req, res) {
     //sort=postDate -postDatenew
     const total = await Order.find({ status: NEW_ORDER })
         .countDocuments()
-        .populate("client")
         .exec();
     const { pagination, sort } = convertQuery(req.query, total);
     const { page, pageSize } = pagination;
@@ -97,6 +96,7 @@ async function getAllOrders(req, res) {
         .sort(sort)
         .skip((page - 1) * pageSize)
         .limit(pageSize)
+        .populate("client")
         .exec();
 
     return responseFormatter(res, 200, null, { data: ordersList, pagination });
