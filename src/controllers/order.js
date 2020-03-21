@@ -96,6 +96,7 @@ async function getAllOrders(req, res) {
         .sort(sort)
         .skip((page - 1) * pageSize)
         .limit(pageSize)
+        .populate("client")
         .exec();
 
     return responseFormatter(res, 200, null, { data: ordersList, pagination });
@@ -150,18 +151,18 @@ async function updateOrderById(req, res) {
 async function updateOrderStatusByClient(req, res) {
     const { orderId, clientId } = req.params;
     const { status } = req.query;
-    const order = await Order.findById(orderId)
-        .populate("client")
-        .exec();
-    if (!order) {
-        return responseFormatter(res, 404, "Order not found", null);
-    }
-
     const client = await Client.findById(clientId).exec();
     checkId(client, req, res);
     if (res.statusCode === 401 || res.statusCode === 404) return;
     if (order.client.user.toString() !== req.user.id) {
         return responseFormatter(res, 401, "Access denied", null);
+    }
+
+    const order = await Order.findById(orderId)
+        .populate("client")
+        .exec();
+    if (!order) {
+        return responseFormatter(res, 404, "Order not found", null);
     }
 
     if (
@@ -182,6 +183,7 @@ async function updateOrderStatusByBusiness(req, res) {
     const business = await Business.findById(businessId).exec();
     checkId(business, req, res);
     if (res.statusCode === 401 || res.statusCode === 404) return;
+
     const order = await Order.findById(orderId)
         .populate("business")
         .exec();
