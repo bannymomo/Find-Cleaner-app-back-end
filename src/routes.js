@@ -8,7 +8,7 @@ const { authGuard } = require("./middleware/authGuard");
 
 const router = express.Router();
 router.use("/clients", authGuard, clientRoute);
-router.use("/businesses", authGuard, businessRoute);
+router.use("/businesses", businessRoute);
 router.use("/orders", authGuard, orderRoute);
 router.use("/users", userRoute);
 router.use("/auth", authRoute);
