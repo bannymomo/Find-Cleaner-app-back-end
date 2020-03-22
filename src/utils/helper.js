@@ -9,8 +9,8 @@ function convertPagination(query, count) {
         return { page: 1, pageSize: 10, pages: 1 };
     }
     let { pageSize, page } = query;
-    pageSize = parseInt(query.pageSize) || 10;
-    page = parseInt(query.page) || 1;
+    pageSize = parseInt(query.pageSize);
+    page = parseInt(query.page);
     if (page < 1) {
         page = 1;
     }

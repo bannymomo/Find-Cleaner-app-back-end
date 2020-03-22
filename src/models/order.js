@@ -98,7 +98,7 @@ schema.virtual("price").get(function() {
         this.oven * 5 +
         this.windows * 68 +
         this.cabinets * 36 +
-        this.carpet * 58
+        this.carpet * 58 + 20
     );
 });
 

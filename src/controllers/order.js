@@ -1,6 +1,7 @@
 const Order = require("../models/order");
 const Client = require("../models/client");
 const Business = require("../models/business");
+const Comment = require("../models/comment");
 const responseFormatter = require("../utils/responseFormatter");
 const checkId = require("../utils/idCheck");
 
@@ -151,18 +152,18 @@ async function updateOrderById(req, res) {
 async function updateOrderStatusByClient(req, res) {
     const { orderId, clientId } = req.params;
     const { status } = req.query;
-    const client = await Client.findById(clientId).exec();
-    checkId(client, req, res);
-    if (res.statusCode === 401 || res.statusCode === 404) return;
-    if (order.client.user.toString() !== req.user.id) {
-        return responseFormatter(res, 401, "Access denied", null);
-    }
-
     const order = await Order.findById(orderId)
         .populate("client")
         .exec();
     if (!order) {
         return responseFormatter(res, 404, "Order not found", null);
+    }
+
+    const client = await Client.findById(clientId).exec();
+    checkId(client, req, res);
+    if (res.statusCode === 401 || res.statusCode === 404) return;
+    if (order.client.user.toString() !== req.user.id) {
+        return responseFormatter(res, 401, "Access denied", null);
     }
 
     if (
@@ -228,6 +229,15 @@ async function addOrderComment(req, res) {
     order.rate = comment.rate;
     order.comment = comment.comment;
     await order.save();
+
+    const newComment = new Comment({
+        rate: comment.rate,
+        comment: comment.comment,
+        client: client,
+        business: order.business
+    });
+    await newComment.save();
+
     return responseFormatter(res, 200, null, order);
 }
 

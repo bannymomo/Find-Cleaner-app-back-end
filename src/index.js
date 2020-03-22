@@ -9,7 +9,7 @@ const routes = require("./routes");
 const connectToDB = require("./utils/db");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3333;
 const morganLog =
     process.env.NODE_ENV === "production" ? morgan("common") : morgan("dev");
 
