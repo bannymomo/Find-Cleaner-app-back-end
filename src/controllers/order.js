@@ -234,6 +234,8 @@ async function addOrderComment(req, res) {
         rate: comment.rate,
         comment: comment.comment,
         client: client,
+        clientName: `${client.firstName} ${client.lastName}`,
+        clientPhoto: client.photo,
         business: order.business
     });
     await newComment.save();

@@ -14,6 +14,12 @@ const schema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "Client"
         },
+        clientName: {
+            type: String
+        },
+        clientPhoto: {
+            type: String
+        },
         business: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Business"
