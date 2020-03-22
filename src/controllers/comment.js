@@ -25,12 +25,14 @@ async function getAllComment (req, res) {
 
     if (!businessId) {
         const commentList = await Comment.find()
+            .populate("client", "firstName lastName photo")
             .skip((page - 1) * pageSize)
             .limit(pageSize)
             .exec();
         return responseFormatter(res, 200, null, { data: commentList, pagination });
     }
     const commentList = await Comment.find({ business: businessId })
+        .populate("client", "firstName lastName photo")
         .skip((page - 1) * pageSize)
         .limit(pageSize)
         .exec();

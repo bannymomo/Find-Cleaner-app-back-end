@@ -53,6 +53,7 @@ const schema = new mongoose.Schema({
         default: "Find Cleaner app business",
         trim: true
     },
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
     orders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }],
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User" }
 });

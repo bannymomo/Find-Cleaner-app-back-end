@@ -238,6 +238,12 @@ async function addOrderComment(req, res) {
     });
     await newComment.save();
 
+    const commentId = newComment._id;
+    const businessId = order.business;
+    const business = await Business.findById(businessId).exec();
+    business.comments.addToSet(commentId);
+    await business.save();
+
     return responseFormatter(res, 200, null, order);
 }
 
