@@ -61,7 +61,9 @@ async function getBusinessById(req, res) {
 }
 
 async function getAllBusinesses(req, res) {
-	const businesses = await Business.find().exec();
+	const businesses = await Business.find()
+		.populate("comments")	
+		.exec();
 	return responseFormatter(res, 200, null, businesses);
 }
 
