@@ -52,7 +52,7 @@ async function addBusiness(req, res) {
 async function getBusinessById(req, res) {
 	const { businessId } = req.params;
 	const business = await Business.findById(businessId)
-		.populate("orders user")
+		.populate("orders user comments")
 		.exec();
 	if (!business) {
 		return responseFormatter(res, 404, "business not found", null);
