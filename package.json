@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@hapi/joi": "^17.1.0",
-    "aws-sdk": "^2.641.0",
+    "aws-sdk": "^2.814.0",
     "bcrypt": "^3.0.7",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
